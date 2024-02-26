@@ -23,6 +23,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaiKhoan", "TaiKhoan\TaiKho
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "package", "package", "{37164393-05D5-4264-AF8E-CFB2ADCD3BD6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontEnd", "frontEnd", "{B0FDCC01-1F8B-434B-8C1C-FEE7B584E5BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "unilevel.Web", "unilevel.Web\unilevel.Web.csproj", "{A27035C3-1471-40C4-B01C-38B085CB66E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +57,10 @@ Global
 		{60BDDB4D-25E5-4AD3-886B-F46128BED314}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60BDDB4D-25E5-4AD3-886B-F46128BED314}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60BDDB4D-25E5-4AD3-886B-F46128BED314}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A27035C3-1471-40C4-B01C-38B085CB66E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A27035C3-1471-40C4-B01C-38B085CB66E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A27035C3-1471-40C4-B01C-38B085CB66E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A27035C3-1471-40C4-B01C-38B085CB66E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,6 +72,7 @@ Global
 		{89A9C9FF-04F3-42EE-8A28-D16692C6DDB6} = {4ED836F6-CAB5-4CC3-9853-D6EC4D752518}
 		{B912F0A6-A994-4BFD-BE58-ED02DC060B21} = {551DE888-92A5-4A96-81DF-9E4F6221743A}
 		{60BDDB4D-25E5-4AD3-886B-F46128BED314} = {4ED836F6-CAB5-4CC3-9853-D6EC4D752518}
+		{A27035C3-1471-40C4-B01C-38B085CB66E1} = {B0FDCC01-1F8B-434B-8C1C-FEE7B584E5BC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8A683330-54BB-4590-8E25-CB5BC127C14D}

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using TaiKhoan.Context;
@@ -119,5 +120,54 @@ namespace TaiKhoan.Controllers
             // Chuyển đổi các byte thành một chuỗi có thể đọc được bằng cách sử dụng bảng mã Base64
             return Convert.ToBase64String(buffer);
         }
+
+        [HttpPut]
+        public ResponseDto PutNhanvien([FromBody] NhanvienDto nhanvienDto)
+        {
+            try
+            {
+                // Tạo một đối tượng nhân viên mới từ dữ liệu nhận được
+                var obj = _mapper.Map<Nhanvien>(nhanvienDto);
+
+                // Thêm nhân viên mới vào cơ sở dữ liệu
+                _context.Nhanviens.Update(obj);
+                _context.SaveChanges();
+
+                _responseDto.Resurt = _mapper.Map<NhanvienDto>(obj);
+
+                return _responseDto;
+            }
+            catch (Exception ex)
+            {
+                _responseDto.Success = false;
+                _responseDto.Message = ex.Message;
+            }
+            return _responseDto;
+        }
+
+        [HttpDelete]
+        [Route("Delete/{id}")]
+        public ResponseDto DeleteNhanvien(int id) 
+        {
+            try
+            {
+                var obj = _context.Nhanviens.FirstOrDefault(nv => nv.NvId == id);
+
+                // Thêm nhân viên mới vào cơ sở dữ liệu
+                _context.Nhanviens.Remove(obj);
+                _context.SaveChanges();
+
+                _responseDto.Resurt = _mapper.Map<NhanvienDto>(obj);
+
+                return _responseDto;
+            }
+            catch (Exception ex)
+            {
+                _responseDto.Success = false;
+                _responseDto.Message = ex.Message;
+            }
+            return _responseDto;
+        }
+        
     }
 }
