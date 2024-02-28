@@ -5,8 +5,8 @@ namespace unilevel.Web.Service.IService
 {
     public interface INhanvienService
     {
-        Task<ResponseDto?> GetNhanvienAsync(int id);
-        Task<ResponseDto?> GetAllNhanvienAsync();
+        Task<ResponseDto?> GetNhanvienAsync();
+        Task<ResponseDto?> GetAllNhanvienAsync(string gmail);
         Task<ResponseDto?> GetNhanvienByIDAsync(int id);
         Task<ResponseDto?> CreateNhanvienAsync(NhanvienDto nhanvienDto);
         Task<ResponseDto?> UpdateNhanvienAsync(NhanvienDto nhanvienDto);

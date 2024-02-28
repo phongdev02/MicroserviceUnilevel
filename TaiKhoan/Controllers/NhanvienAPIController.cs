@@ -33,10 +33,10 @@ namespace TaiKhoan.Controllers
             try
             {
                 IEnumerable<Nhanvien> nhanviens = _context.Nhanviens.ToList();
-                _responseDto.Resurt = _mapper.Map<IEnumerable<NhanvienDto>>(nhanviens);
+                _responseDto.Result = _mapper.Map<IEnumerable<NhanvienDto>>(nhanviens);
             }
             catch(Exception ex) { 
-                _responseDto.Success = false;
+                _responseDto.IsSuccess = false;
                 _responseDto.Message = ex.Message;
             }
             return _responseDto;
@@ -48,11 +48,11 @@ namespace TaiKhoan.Controllers
             try
             {
                 var nhanvien = _context.Nhanviens.FirstOrDefault(nv=>nv.NvId == id);
-                _responseDto.Resurt = _mapper.Map<NhanvienDto>(nhanvien);
+                _responseDto.Result = _mapper.Map<NhanvienDto>(nhanvien);
             }
             catch (Exception ex)
             {
-                _responseDto.Success = false;
+                _responseDto.IsSuccess = false;
                 _responseDto.Message = ex.Message;
             }
             return _responseDto;
@@ -60,16 +60,16 @@ namespace TaiKhoan.Controllers
 
         [HttpGet]
         [Route("GetByGmail/{gmail}")]
-        public ResponseDto GetByGmail(string gmail)
+        public ResponseDto LoginAccount(string gmail, string pass)
         {
             try
             {
-                var nhanvien = _context.Nhanviens.FirstOrDefault(nv => nv.GmailNv.ToLower() == gmail.ToLower());
-                _responseDto.Resurt = _mapper.Map<NhanvienDto>(nhanvien);
+                var nhanvien = _context.Nhanviens.FirstOrDefault(nv => nv.GmailNv.ToLower() == gmail.ToLower() && );
+                _responseDto.Result = _mapper.Map<NhanvienDto>(nhanvien);
             }
             catch (Exception ex)
             {
-                _responseDto.Success = false;
+                _responseDto.IsSuccess = false;
                 _responseDto.Message = ex.Message;
             }
             return _responseDto;
@@ -94,13 +94,13 @@ namespace TaiKhoan.Controllers
                 _context.Nhanviens.Add(obj);
                 _context.SaveChanges();
 
-                _responseDto.Resurt = _mapper.Map<NhanvienDto>(obj);
+                _responseDto.Result = _mapper.Map<NhanvienDto>(obj);
 
                 return _responseDto;
             }
             catch (Exception ex)
             {
-                _responseDto.Success = false;
+                _responseDto.IsSuccess = false;
                 _responseDto.Message = ex.Message;
             }
             return _responseDto;
@@ -133,13 +133,13 @@ namespace TaiKhoan.Controllers
                 _context.Nhanviens.Update(obj);
                 _context.SaveChanges();
 
-                _responseDto.Resurt = _mapper.Map<NhanvienDto>(obj);
+                _responseDto.Result = _mapper.Map<NhanvienDto>(obj);
 
                 return _responseDto;
             }
             catch (Exception ex)
             {
-                _responseDto.Success = false;
+                _responseDto.IsSuccess = false;
                 _responseDto.Message = ex.Message;
             }
             return _responseDto;
@@ -157,13 +157,13 @@ namespace TaiKhoan.Controllers
                 _context.Nhanviens.Remove(obj);
                 _context.SaveChanges();
 
-                _responseDto.Resurt = _mapper.Map<NhanvienDto>(obj);
+                _responseDto.Result = _mapper.Map<NhanvienDto>(obj);
 
                 return _responseDto;
             }
             catch (Exception ex)
             {
-                _responseDto.Success = false;
+                _responseDto.IsSuccess = false;
                 _responseDto.Message = ex.Message;
             }
             return _responseDto;

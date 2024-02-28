@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TaiKhoan.Context;
+using TaiKhoan.service;
+using TaiKhoan.service.IService;
 
 namespace TaiKhoan
 {
@@ -16,9 +18,13 @@ namespace TaiKhoan
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            //setting Imapper
             IMapper iMapper = MappingConfig.RegisterMaps().CreateMapper();
             builder.Services.AddSingleton(iMapper);
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            //setting class
+            builder.Services.AddScoped<ITaikhoanService, TaikhoanService>();
 
             // Add services to the container.
 

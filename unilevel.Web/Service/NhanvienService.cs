@@ -1,6 +1,7 @@
 ﻿using TaiKhoan.Models.Dto;
 using unilevel.Web.Models;
 using unilevel.Web.Service.IService;
+using unilevel.Web.Utility;
 
 namespace unilevel.Web.Service
 {
@@ -12,34 +13,65 @@ namespace unilevel.Web.Service
             _baseService = baseService;
         }
 
-        public Task<ResponseDto?> CreateNhanvienAsync(NhanvienDto nhanvienDto)
+        public async Task<ResponseDto?> CreateNhanvienAsync(NhanvienDto nhanvienDto)
         {
-            throw new NotImplementedException();
+            return await _baseService.SenAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.POST,
+                Data = nhanvienDto,
+                Url = SD.NhanvienApiBase + "/api/NhanvienAPI"
+
+            });
         }
 
-        public Task<ResponseDto?> DeleteAllNhanvienAsync(int id)
+        public async Task<ResponseDto?> DeleteAllNhanvienAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _baseService.SenAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.DELETE,
+                Url = SD.NhanvienApiBase + "/api/NhanvienAPI/Delete/" + id
+
+            });
         }
 
-        public Task<ResponseDto?> GetAllNhanvienAsync()
+        public async Task<ResponseDto?> GetAllNhanvienAsync(string gmail)
         {
-            throw new NotImplementedException();
+            return await _baseService.SenAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.GET,
+                Url = SD.NhanvienApiBase + "/api/NhanvienAPI/GetByGmail/" + gmail
+
+            });
         }
 
-        public Task<ResponseDto?> GetNhanvienAsync(int id)
+        public async Task<ResponseDto?> GetNhanvienAsync()
         {
-            throw new NotImplementedException();
+            return await _baseService.SenAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.GET,
+                Url = SD.NhanvienApiBase + "/api/NhanvienAPI"
+
+            });
         }
 
-        public Task<ResponseDto?> GetNhanvienByIDAsync(int id)
+        public async Task<ResponseDto?> GetNhanvienByIDAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _baseService.SenAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.GET,
+                Url = SD.NhanvienApiBase + "/api/NhanvienAPI/" + id
+
+            });
         }
 
-        public Task<ResponseDto?> UpdateNhanvienAsync(NhanvienDto nhanvienDto)
+        public async Task<ResponseDto?> UpdateNhanvienAsync(NhanvienDto nhanvienDto)
         {
-            throw new NotImplementedException();
+            return await _baseService.SenAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.PUT,
+                Data= nhanvienDto,
+                Url = SD.NhanvienApiBase + "/api/NhanvienAPI/GetByGmail"
+            });
         }
     }
 }

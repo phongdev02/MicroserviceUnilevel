@@ -22,10 +22,9 @@ namespace unilevel.Web.Service
         {
             try
             {
+                HttpClient client = httpClientFactory.CreateClient("NhanvienAPI");
+                HttpRequestMessage message = new HttpRequestMessage();
 
-
-                HttpClient client = httpClientFactory.CreateClient("MangoAPI");
-                HttpRequestMessage message = new();
                 message.Headers.Add("Accept", "application/json");
                 //token
                 message.RequestUri = new Uri(requestDto.Url);
@@ -59,11 +58,11 @@ namespace unilevel.Web.Service
                     case HttpStatusCode.NotFound:
                         return new() { IsSuccess = false, Message = "Not Found" };
                     case HttpStatusCode.Forbidden:
-                        return new() { IsSuccess = false, Message = "Not Found" };
+                        return new() { IsSuccess = false, Message = "Forbidden" };
                     case HttpStatusCode.Unauthorized:
-                        return new() { IsSuccess = false, Message = "Not Found" };
+                        return new() { IsSuccess = false, Message = "Unauthorized" };
                     case HttpStatusCode.InternalServerError:
-                        return new() { IsSuccess = false, Message = "Not Found" };
+                        return new() { IsSuccess = false, Message = "Internal ServerError" };
                     default:
                         var apiContent = await apiResponse.Content.ReadAsStringAsync();
                         var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
