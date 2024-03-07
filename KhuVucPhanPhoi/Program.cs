@@ -1,11 +1,7 @@
-﻿using AutoMapper;
+using KhuVucPhanPhoi.Context;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using TaiKhoan.Context;
-using TaiKhoan.service;
-using TaiKhoan.service.IService;
 
-namespace TaiKhoan
+namespace KhuVucPhanPhoi
 {
     public class Program
     {
@@ -13,24 +9,15 @@ namespace TaiKhoan
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //add database
+            //add db
             builder.Services.AddDbContext<AppDBContext>(option =>
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            //setting Imapper
-            IMapper iMapper = MappingConfig.RegisterMaps().CreateMapper();
-            builder.Services.AddSingleton(iMapper);
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-            //setting class
-            //builder.Services.AddScoped<ITaikhoanService, TaikhoanService>();
-
             // Add services to the container.
 
             builder.Services.AddControllers();
-
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -48,23 +35,10 @@ namespace TaiKhoan
 
             app.UseAuthorization();
 
+
             app.MapControllers();
 
             app.Run();
-
-            //apply migration 
-            void ApplyMigrations()
-            {
-                using (var context = app.Services.CreateScope())
-                {
-                    var _db = context.ServiceProvider.GetRequiredService<AppDBContext>();
-
-                    if(_db.Database.GetPendingMigrations().Count() > 0)
-                    {
-                        _db.Database.Migrate();
-                    }
-                }
-            }
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using TaiKhoan.Context;
 using TaiKhoan.Models;
 using TaiKhoan.Models.Dto;
+using TaiKhoan.service;
 
 namespace TaiKhoan.Controllers
 {
@@ -64,7 +65,7 @@ namespace TaiKhoan.Controllers
         {
             try
             {
-                var nhanvien = _context.Nhanviens.FirstOrDefault(nv => nv.GmailNv.ToLower() == gmail.ToLower() && );
+                var nhanvien = _context.Nhanviens.FirstOrDefault(nv => nv.GmailNv.ToLower() == gmail.ToLower());
                 _responseDto.Result = _mapper.Map<NhanvienDto>(nhanvien);
             }
             catch (Exception ex)
@@ -83,12 +84,6 @@ namespace TaiKhoan.Controllers
                 // Tạo một đối tượng nhân viên mới từ dữ liệu nhận được
                 var obj = _mapper.Map<Nhanvien>(nhanvienDto);
 
-                var pass = GeneratePassword(12);
-                
-                var hasher = new PasswordHasher<string>();
-                var hashedPassword = hasher.HashPassword(null, pass);
-
-                obj.MatkhauNv = hashedPassword;
 
                 // Thêm nhân viên mới vào cơ sở dữ liệu
                 _context.Nhanviens.Add(obj);
@@ -104,21 +99,6 @@ namespace TaiKhoan.Controllers
                 _responseDto.Message = ex.Message;
             }
             return _responseDto;
-        }
-
-        private static string GeneratePassword(int length)
-        {
-            // Tạo một mảng byte để lưu trữ các ký tự ngẫu nhiên
-            byte[] buffer = new byte[length];
-
-            // Sử dụng RandomNumberGenerator để tạo ra các byte ngẫu nhiên
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(buffer);
-            }
-
-            // Chuyển đổi các byte thành một chuỗi có thể đọc được bằng cách sử dụng bảng mã Base64
-            return Convert.ToBase64String(buffer);
         }
 
         [HttpPut]
