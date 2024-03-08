@@ -11,7 +11,5 @@ namespace unilevel.Web.Service.IService
         Task<ResponseDto?> CreateNhanvienAsync(NhanvienDto nhanvienDto);
         Task<ResponseDto?> UpdateNhanvienAsync(NhanvienDto nhanvienDto);
         Task<ResponseDto?> DeleteAllNhanvienAsync(int id);
-
-
     }
 }
