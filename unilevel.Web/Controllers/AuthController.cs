@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Azure;
 
 namespace unilevel.Web.Controllers
 {
@@ -47,6 +48,27 @@ namespace unilevel.Web.Controllers
 
             return Ok(_responDto);
         }
+
+        [HttpGet("Logout")]
+        public async Task<OkResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            _tokenProvider.clearToken();
+            return Ok();
+        }
+
+        [HttpGet("LoginWithToken")]
+        public async Task<IActionResult> LoginWithToken()
+        {
+            var cookie = _tokenProvider.getToken();
+
+            //convert cookie to jwt token with authorization
+
+            JwtSecurityToken token = new JwtSecurityToken(cookie);
+
+            return Ok(token);
+        }
+
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegistrationRequestDto  model)
         {

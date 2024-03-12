@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Nhanvien.Context;
+﻿using OfficeOpenXml;
+using ReadFile.Services;
+using ReadFile.Services.IServices;
 
-namespace Nhanvien
+namespace ReadFile
 {
     public class Program
     {
@@ -10,11 +10,13 @@ namespace Nhanvien
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //add database
-            builder.Services.AddDbContext<UnilevelContext>(option =>
-            {
-                option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnetion"));
-            });
+            // add scoped services
+            builder.Services.AddScoped<IFileService, FileService>();
+
+            //Set the environment variable epplus
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            System.Environment.SetEnvironmentVariable("EPPlusLicenseContext", "NonCommercial");
 
             // Add services to the container.
 
@@ -22,6 +24,7 @@ namespace Nhanvien
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -35,6 +38,9 @@ namespace Nhanvien
 
             app.UseAuthorization();
 
+            app.UseRouting();
+
+            app.UseAuthentication();
 
             app.MapControllers();
 

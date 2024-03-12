@@ -9,7 +9,11 @@ namespace TaiKhoan.Models
         [Key]
         public int NvId { get; set; }
 
+        public string GmailDangnhap { get; set; }
+
         public string? GmailNv { get; set; }
+        [Required]
+        public string GmailQuanly { get; set; }
 
         public string? MatkhauNv { get; set; }
 
@@ -19,14 +23,13 @@ namespace TaiKhoan.Models
 
         public DateTime? NgayLam { get; set; }
 
-        public bool? TrangthaiNv { get; set; }
-
+        [Required]
+        public bool TrangthaiNv { get; set; }
+        [Required]
         public string? Sdt { get; set; }
 
         public int? ChucvuId { get; set; }
 
-        public string? HinhanhNv { get; set; }
-
-        public int? TkId { get; set; }
+        public int? HinhanhID { get; set; }
     }
 }

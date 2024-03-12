@@ -59,7 +59,9 @@ namespace AuthAPI.Service
                 return new LoginResponseDto() { User = null, Token = "" };
             }
             // if user was found, genegrate JWT token
-            var token = _jwtTokenGeneratetor.GenerateToken(user);
+            var role = await _userManager.GetRolesAsync(user);
+
+            var token = _jwtTokenGeneratetor.GenerateToken(user, role);
 
             UserDto userDto = new()
             {

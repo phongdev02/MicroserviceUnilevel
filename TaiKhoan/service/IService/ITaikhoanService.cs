@@ -10,5 +10,6 @@ namespace TaiKhoan.service.IService
         Task<ResponseDto> CreateAccount([FromBody] NhanvienDtoNoID nhanvienDtoNoID);
         Task<ResponseDto> EditAccount([FromBody] NhanvienDtoNoID nhanvienDtoNoID);
         Task<ResponseDto> StatusAccount(int id,bool status);
+        
     }
 }
