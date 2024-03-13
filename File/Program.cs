@@ -1,7 +1,10 @@
-using File.Context;
+using AutoMapper;
+using FileRetention.Context;
+using FileRetention.Services;
+using FileRetention.Services.IServices;
 using Microsoft.EntityFrameworkCore;
 
-namespace File
+namespace FileRetention
 {
     public class Program
     {
@@ -14,6 +17,14 @@ namespace File
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            //create scopt
+            builder.Services.AddScoped<IFileRetenService, FileRetenService>();
+
+            //using mapping
+            IMapper iMapper = MappingConfig.RegisterMaps().CreateMapper();
+            builder.Services.AddSingleton(iMapper);
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // Add services to the container.
 

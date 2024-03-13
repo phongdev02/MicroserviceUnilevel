@@ -1,8 +1,8 @@
-﻿using File.Models;
+﻿using FileRetention.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace File.Context
+namespace FileRetention.Context
 {
     public class AppDBContext : DbContext
     {

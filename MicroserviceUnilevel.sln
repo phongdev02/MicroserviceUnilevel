@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthAPI", "AuthAPI\AuthAPI.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReadFile", "ReadFile\ReadFile.csproj", "{AF6C12C5-DEB4-47D5-9FE7-AFE9B3DBEE3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "File", "File\File.csproj", "{B55992BB-DB23-4AAE-A357-7903BF11CE2C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileRetention", "File\FileRetention.csproj", "{B55992BB-DB23-4AAE-A357-7903BF11CE2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

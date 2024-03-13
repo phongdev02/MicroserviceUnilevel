@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace File.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20240312105405_addTableToDB")]
-    partial class addTableToDB
+    [Migration("20240312115027_editNameColTableTep")]
+    partial class editNameColTableTep
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace File.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("File.Models.Tep", b =>
+            modelBuilder.Entity("FileRetention.Models.Tep", b =>
                 {
                     b.Property<int>("TepId")
                         .ValueGeneratedOnAdd()
@@ -41,7 +41,7 @@ namespace File.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("NgayUpload")
+                    b.Property<DateTime>("NgayTao")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("TenTep")
@@ -53,7 +53,7 @@ namespace File.Migrations
                     b.ToTable("Teps");
                 });
 
-            modelBuilder.Entity("File.Models.TepCu", b =>
+            modelBuilder.Entity("FileRetention.Models.TepCu", b =>
                 {
                     b.Property<int>("TepcuId")
                         .ValueGeneratedOnAdd()
@@ -88,9 +88,9 @@ namespace File.Migrations
                     b.ToTable("TepCus");
                 });
 
-            modelBuilder.Entity("File.Models.TepCu", b =>
+            modelBuilder.Entity("FileRetention.Models.TepCu", b =>
                 {
-                    b.HasOne("File.Models.Tep", "Tep")
+                    b.HasOne("FileRetention.Models.Tep", "Tep")
                         .WithMany("tepCu")
                         .HasForeignKey("TepID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -99,7 +99,7 @@ namespace File.Migrations
                     b.Navigation("Tep");
                 });
 
-            modelBuilder.Entity("File.Models.Tep", b =>
+            modelBuilder.Entity("FileRetention.Models.Tep", b =>
                 {
                     b.Navigation("tepCu");
                 });

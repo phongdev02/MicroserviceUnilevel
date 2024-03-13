@@ -1,4 +1,4 @@
-﻿namespace File.Models.Dto
+﻿namespace FileRetention.Models.Dto
 {
     public class ResponseDto
     {
