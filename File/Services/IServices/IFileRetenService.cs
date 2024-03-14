@@ -4,8 +4,9 @@ namespace FileRetention.Services.IServices
 {
     public interface IFileRetenService
     {
-        Task<ResponseDto> AddFileAsync(string filePath);
+        Task<ResponseDto> AddFileAsync(IFormFile filePath);
         Task<ResponseDto> GetFileAsync();
-        Task<ResponseDto> EditFileAsync(string filePath);
+        Task<ResponseDto> EditFileAsync(int id, IFormFile filePath);
+        Task<ResponseDto> DownloadFile(int tepId);
     }
 }

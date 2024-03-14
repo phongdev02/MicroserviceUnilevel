@@ -8,6 +8,7 @@ namespace FileRetention.Models
         public int TepId { get; set; }
         public string TenTep { get; set; }
         public string KieuTep { get; set; }
+        public string contentType { get; set; }
         public byte[] DuLieu { get; set; } // Dữ liệu tệp được lưu dưới dạng mảng byte
         public DateTime NgayTao { get; set; }
         public bool TrangThai { get; set; }

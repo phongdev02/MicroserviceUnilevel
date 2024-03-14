@@ -5,6 +5,7 @@ using ReadFile.Models.Dto;
 using ReadFile.Services.IServices;
 using System.Globalization;
 using System.IO;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -16,7 +17,7 @@ namespace ReadFile.Services
         public ResponseDto _responseDto;
         private FileDto _fileExcel;
         private FileDto _fileCSV;
-        private string[] _headerNV ;
+        private string[] _headerNV;
 
         public FileService()
         {
@@ -53,7 +54,7 @@ namespace ReadFile.Services
                     return null;
             }
 
-            
+
 
             file.fileName = "file_nhanvien";
             file.Stream = stream;
@@ -68,22 +69,66 @@ namespace ReadFile.Services
             return file;
         }
 
-        public async Task<ResponseDto> ReadFileExcelNV(string filePath)
+        public async Task<ResponseDto> ReadFileNV(IFormFile file)
         {
-            string fileExtension = GetFileExtension(filePath);
-
             try
             {
-                List<DataNV> excelDataList = new List<DataNV>();
-
-                var link = new FileInfo(filePath);
-
-                using (var package = new ExcelPackage(link))
+                if (file == null || file.Length == 0)
                 {
-                    var workbook = package.Workbook;
-                    if (workbook != null)
+                    return new ResponseDto()
                     {
-                        var worksheet = workbook.Worksheets.FirstOrDefault();
+                        IsSuccess = false,
+                        Message = "No file uploaded",
+                        Result = null
+                    };
+                }
+
+                var typeFile = "";
+                typeFile = await GetFileExtension(file.FileName);
+
+                switch (typeFile)
+                {
+                    case "xlsx":
+                        return _responseDto = await ReadFileExcelNV(file);
+                    case "csv":
+                        return _responseDto = await ReadFileCSVNV(file);
+                    default:
+                        _responseDto = new()
+                        {
+                            IsSuccess = false,
+                            Message = "Không hỗ trợ đọc kiểu dữ liệu file này, vui lòng tải về 2 file mẫu trên là excel hoặc CSV",
+                            Result = null
+                        };
+                        return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto()
+                {
+                    IsSuccess = false,
+                    Message = "Không hỗ trợ đọc kiểu dữ liệu file này, vui lòng tải về 2 file mẫu trên là excel hoặc CSV",
+                    Result = null
+                };
+                throw;
+            }
+        }
+
+        private async Task<ResponseDto> ReadFileExcelNV(IFormFile file)
+        {
+            try
+            {
+                using (var stream = new MemoryStream())
+                {
+                    await file.CopyToAsync(stream);
+                    using (var package = new ExcelPackage(stream))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                        if (worksheet == null)
+                        {
+                            return new ResponseDto { IsSuccess = false, Message = "No worksheet found in the Excel file" , Result = null};
+                        }
+                        List<DataNV> excelDataList = new List<DataNV>();
                         if (worksheet != null)
                         {
                             // Đọc dữ liệu từ worksheet, bắt đầu từ dòng thứ 2
@@ -106,30 +151,21 @@ namespace ReadFile.Services
                                 excelDataList.Add(excelData);
                             }
                         }
+                        return new ResponseDto { IsSuccess = true, Result= excelDataList, Message = "Đọc file thành công"};
                     }
                 }
-
-                _responseDto.IsSuccess = true;
-                _responseDto.Message = "Lấy dữ liệu thành công";
-                _responseDto.Result = excelDataList;
             }
             catch (Exception ex)
             {
-                _responseDto = new ResponseDto
-                {
-                    IsSuccess = false,
-                    Message = ex != null ? ex.Message : "An error occurred.",
-                    Result = null
-                };
+                return new ResponseDto { IsSuccess = false, Message = "Error : "+ ex.ToString(), Result = null };
             }
-            return _responseDto;
         }
 
-        public async Task<ResponseDto> ReadFileCSVNV(string filePath)
+        public async Task<ResponseDto> ReadFileCSVNV(IFormFile filePath)
         {
             try
             {
-                using (var reader = new StreamReader(filePath))
+                using (var reader = new StreamReader(filePath.OpenReadStream(), Encoding.UTF8))
                 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                 {
                     var records = new List<DataNV>();
@@ -247,7 +283,7 @@ namespace ReadFile.Services
             }
             return stream;
         }
-        private string GetFileExtension(string filePath)
+        private async Task<string> GetFileExtension(string filePath)
         {
             return Path.GetExtension(filePath)?.TrimStart('.');
         }

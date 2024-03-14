@@ -57,24 +57,56 @@ namespace ReadFile.Controllers
             }
         }
 
-        [HttpGet("ReadFile/{fileName}")]
-        public async Task<IActionResult> ReadFileNV(string fileName)
+        [HttpPost("ReadFile/")]
+        public async Task<IActionResult> ReadFileNV(IFormFile file)
         {
-            string filePath = fileName;
-            // lấy dữ liệu file
-            ResponseDto? excelDataNVs = await _fileService.ReadFileExcelNV(filePath);
-            _responseDto = excelDataNVs;
-            return Ok(_responseDto);
+            try
+            {
+                ResponseDto? excelDataNVs = await _fileService.ReadFileNV(file);
+
+                if(excelDataNVs.IsSuccess == false)
+                {
+                    return BadRequest(excelDataNVs.Message);
+                }
+
+                return Ok(excelDataNVs);
+            }
+            catch (Exception ex)
+            {
+                _responseDto = new()
+                {
+                    IsSuccess = false,
+                    Message = "Error: " + ex.ToString(),
+                    Result = null
+                };
+                return Ok(_responseDto);
+            }
         }
 
-        [HttpGet("ReadFile/CSV/{fileName}")]
-        public async Task<IActionResult> ReadFileNVCSV(string fileName)
+        [HttpPost("ReadFile/CSV/{fileName}")]
+        public async Task<IActionResult> ReadFileNVCSV(IFormFile file)
         {
-            string filePath = fileName;
-            // lấy dữ liệu file
-            ResponseDto? excelDataNVs = await _fileService.ReadFileCSVNV(filePath);
-            _responseDto = excelDataNVs;
-            return Ok(_responseDto);
+            try
+            {
+                ResponseDto? excelDataNVs = await _fileService.ReadFileNV(file);
+
+                if (excelDataNVs.IsSuccess == false)
+                {
+                    return BadRequest(excelDataNVs.Message);
+                }
+
+                return Ok(excelDataNVs);
+            }
+            catch (Exception ex)
+            {
+                _responseDto = new()
+                {
+                    IsSuccess = false,
+                    Message = "Error: " + ex.ToString(),
+                    Result = null
+                };
+                return Ok(_responseDto);
+            }
         }
     }
 }

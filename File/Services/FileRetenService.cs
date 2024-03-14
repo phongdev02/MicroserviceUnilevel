@@ -3,6 +3,7 @@ using FileRetention.Models;
 using FileRetention.Models.Dto;
 using FileRetention.Services.IServices;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
 
 namespace FileRetention.Services
@@ -17,10 +18,9 @@ namespace FileRetention.Services
             _db = db;
             _responseDto = new ResponseDto();
         }
-        public async Task<ResponseDto> AddFileAsync(string filePath)
-        {
-            Tep tep = new Tep();
 
+        public async Task<ResponseDto> AddFileAsync(IFormFile filePath)
+        {
             try
             {
                 var file = await GetFileByte(filePath);
@@ -35,13 +35,16 @@ namespace FileRetention.Services
                 }
                 else
                 {
-                    tep.KieuTep = await GetFileExtension(filePath);
+                    var tep = new Tep();
+
+                    tep.KieuTep = await GetFileExtension(filePath.FileName);
                     tep.DuLieu = file;
-                    tep.NgayTao = DateTime.Now;
-                    tep.TenTep = await GetFileName(filePath);
+                    tep.contentType = filePath.ContentType;
+                    tep.TenTep = filePath.FileName;
+
                     tep.TrangThai = true;
 
-                    _db.Teps.Add(tep);
+                    await _db.Teps.AddAsync(tep);
                     await _db.SaveChangesAsync();
                     return _responseDto = new()
                     {
@@ -60,13 +63,106 @@ namespace FileRetention.Services
                     Result = null
                 };
             }
-
-            return _responseDto;
         }
 
-        public Task<ResponseDto> EditFileAsync(string filePath)
+        public async Task<ResponseDto> DownloadFile(int tepId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var tep = _db.Teps.FirstOrDefault(item => item.TepId == tepId);
+
+                if (tep == null)
+                {
+                    _responseDto = new ResponseDto()
+                    {
+                        Result = null,
+                        Message = "Tep not found",
+                        IsSuccess = false
+                    };
+                    return _responseDto;
+                }
+                else
+                {
+                    return new ResponseDto()
+                    {
+                        IsSuccess = true,
+                        Message = "File " + tep.TenTep + " có tồn tại",
+                        Result = tep
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto()
+                {
+                    Result = null,
+                    Message = "Tep not found",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<ResponseDto> EditFileAsync(int id, IFormFile filePath)
+        {
+            try
+            {
+                Tep tep = await _db.Teps.FirstOrDefaultAsync(item => item.TepId == id);
+
+                var file = await GetFileByte(filePath);
+
+                if (tep == null)
+                {
+                    return _responseDto = new()
+                    {
+                        IsSuccess = false,
+                        Message = "No file or file over limit size, edit and try again",
+                        Result = null
+                    };
+                }
+                else
+                {
+                    //save tep cu vao table TepCu trong DB
+                    TepCu tepCu = new TepCu
+                    {
+                        TenTep = tep.TenTep,
+                        NgayChinhXua = DateTime.Now,
+                        Kieutep = tep.KieuTep,
+                        contentType = tep.contentType,
+                        Dulieu = tep.DuLieu,
+                        TacDong = "Update",
+                        TrangThai = true,
+                        TepID = tep.TepId
+                    };
+                    await _db.TepCus.AddAsync(tepCu);
+                    await _db.SaveChangesAsync();
+
+                    //update tep on table tep on DB
+                    tep.KieuTep = await GetFileExtension(filePath.FileName); 
+                    tep.DuLieu = file;
+                    tep.contentType = filePath.ContentType;
+                    tep.TenTep = filePath.FileName;
+                    tep.TrangThai = true;
+
+                    await _db.SaveChangesAsync();
+
+                    return _responseDto = new()
+                    {
+                        IsSuccess = true,
+                        Message = "File " + tep.TenTep + " đang được tạo",
+                        Result = tep
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return _responseDto = new()
+                {
+                    IsSuccess = false,
+                    Message = "Error: " + ex.ToString(),
+                    Result = null
+                };
+            }
+
         }
 
         public async Task<ResponseDto> GetFileAsync()
@@ -93,24 +189,21 @@ namespace FileRetention.Services
             }
         }
 
-        private async Task<byte[]> GetFileByte(string filePath)
+        private async Task<byte[]> GetFileByte(IFormFile file)
         {
             try
             {
-                var sizeFile = new FileInfo(filePath).Length;
                 // kiem tra file 
-                if (sizeFile > sizeMax)
+                if (file == null || file.Length == 0)
                 {
                     return null;
                 }
-                else
+
+                // Đọc nội dung của tệp và lưu vào một MemoryStream
+                using (var memoryStream = new MemoryStream())
                 {
-                    byte[] fileBytes;
-                    using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                    {
-                        fileBytes = new byte[fs.Length];
-                        fs.Read(fileBytes, 0, (int)fs.Length);
-                    }
+                    await file.CopyToAsync(memoryStream);
+                    byte[] fileBytes = memoryStream.ToArray();
                     return fileBytes;
                 }
             }
@@ -124,19 +217,6 @@ namespace FileRetention.Services
         private async Task<string> GetFileExtension(string filePath)
         {
             return Path.GetExtension(filePath)?.TrimStart('.');
-        }
-
-        private async Task<string> GetFileName(string filePath)
-        {
-            try
-            {
-                return Path.GetFileName(filePath);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                return null;
-            }
         }
     }
 }
