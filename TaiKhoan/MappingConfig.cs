@@ -15,6 +15,15 @@ namespace TaiKhoan
 
                 config.CreateMap<Nhanvien, NhanvienDtoNoID>();
                 config.CreateMap<NhanvienDtoNoID, Nhanvien>();
+
+                //mapper Chucvu
+                config.CreateMap<ChucVu, ChucvuDto>();
+                config.CreateMap<ChucvuDto, ChucVu>();
+
+                //mapper quyentruycap
+                config.CreateMap<QuyenTruyCap, QuyenTruyCapDto>();
+                config.CreateMap<QuyenTruyCapDto, QuyenTruyCap>();
+
             });
 
             return mappingConfig;

@@ -5,8 +5,6 @@ using unilevel.Web.Models;
 using TaiKhoan.Models.Dto;
 using Newtonsoft.Json;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace unilevel.Web.Controllers
 {
     [Route("api/Nhanvien")]
@@ -49,6 +47,7 @@ namespace unilevel.Web.Controllers
             }
             return Ok(lst);
         }
+
         [HttpPost]
         public async Task<IActionResult> PostID([FromBody] NhanvienDto nhanvienDto)
         {

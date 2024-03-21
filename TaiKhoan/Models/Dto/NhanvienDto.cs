@@ -1,27 +1,10 @@
-﻿namespace TaiKhoan.Models.Dto
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace TaiKhoan.Models.Dto
 {
-    public class NhanvienDto
+    public class NhanvienDto : NhanvienDtoNoID
     {
         public int NvId { get; set; }
-
-        public string? GmailNv { get; set; }
-
-        public string? MatkhauNv { get; set; }
-
-        public DateTime? NgayTao { get; set; }
-
-        public string? HoTen { get; set; }
-
-        public DateTime? NgayLam { get; set; }
-
-        public bool? TrangthaiNv { get; set; }
-
-        public string? Sdt { get; set; }
-
-        public int? ChucvuId { get; set; }
-
-        public string? HinhanhNv { get; set; }
-
-        public int? TkId { get; set; }
     }
 }

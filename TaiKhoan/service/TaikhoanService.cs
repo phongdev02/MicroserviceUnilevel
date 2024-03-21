@@ -9,21 +9,59 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using System.IO;
+using OfficeOpenXml.Style.XmlAccess;
 
 namespace TaiKhoan.service
 {
     public class TaikhoanService : ITaikhoanService
     {
-        private readonly AppDBContext _context; 
+        private readonly AppDBContext _context;
         private ResponseDto _responseDto;
         private PasswordManager _passwordManager;
         private IMapper _mapper;
 
-        TaikhoanService(AppDBContext dBContext, IMapper mapper) {
+        public TaikhoanService(AppDBContext dBContext, IMapper mapper) {
             _context = dBContext;
             _responseDto = new ResponseDto();
             _passwordManager = new PasswordManager();
             _mapper = mapper;
+        }
+
+        public async Task<ResponseDto> GetListNhanVat()
+        {
+            try
+            {
+                var models = await _context.Nhanviens.ToListAsync();
+
+                if(models.Count <= 0)
+                {
+                    return _responseDto = new ResponseDto()
+                    {
+                        Result = null,
+                        Message = "Không có nhân viên nào",
+                        IsSuccess = false
+                    };
+                }
+                else
+                {
+                    return _responseDto = new ResponseDto()
+                    {
+                        Result = models,
+                        Message = "Day la danh sach nhan vien sau",
+                        IsSuccess = true
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return _responseDto = new ResponseDto()
+                {
+                    Result = null,
+                    Message = "Loi: "+ex.ToString(),
+                    IsSuccess = false
+                };
+                throw;
+            }
         }
 
         public async Task<ResponseDto> CreateAccount([FromBody] NhanvienDtoNoID nhanvienDto)
@@ -33,6 +71,10 @@ namespace TaiKhoan.service
                 // Tạo một đối tượng nhân viên mới từ dữ liệu nhận được
                 var obj = _mapper.Map<Nhanvien>(nhanvienDto);
 
+                obj.GmailDangnhap = nhanvienDto.GmailNv;
+                obj.GmailNv = nhanvienDto.GmailNv;
+
+                //create random account
                 var pass = _passwordManager.GeneratePassword(12);
 
                 var hasher = new PasswordHasher<string>();
@@ -41,8 +83,8 @@ namespace TaiKhoan.service
                 obj.MatkhauNv = hashedPassword;
 
                 // Thêm nhân viên mới vào cơ sở dữ liệu
-                _context.Nhanviens.Add(obj);
-                _context.SaveChanges();
+                await _context.Nhanviens.AddAsync(obj);
+                await _context.SaveChangesAsync();
 
                 _responseDto.Result = _mapper.Map<NhanvienDto>(obj);
 

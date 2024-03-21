@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using TaiKhoan.Context;
@@ -25,13 +26,12 @@ namespace TaiKhoan
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             //setting class
-            //builder.Services.AddScoped<ITaikhoanService, TaikhoanService>();
+            builder.Services.AddScoped<ITaikhoanService, TaikhoanService>();
+            builder.Services.AddScoped<IChucvuService, ChucvuService>();
 
             // Add services to the container.
-
             builder.Services.AddControllers();
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -46,8 +46,10 @@ namespace TaiKhoan
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            //app.UseAuthentication();
 
+            app.UseAuthorization();
+            
             app.MapControllers();
 
             app.Run();

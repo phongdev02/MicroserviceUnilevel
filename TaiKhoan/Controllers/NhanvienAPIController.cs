@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,145 +10,63 @@ using TaiKhoan.Context;
 using TaiKhoan.Models;
 using TaiKhoan.Models.Dto;
 using TaiKhoan.service;
+using TaiKhoan.service.IService;
 
 namespace TaiKhoan.Controllers
 {
     [Route("api/NhanvienAPI")]
     [ApiController]
+    //[Authorize]
     public class NhanvienAPIController : ControllerBase
     {
         private readonly AppDBContext _context;
         private ResponseDto _responseDto;
-        private IMapper _mapper;
+        private readonly IMapper _mapper;
+        public readonly ITaikhoanService _taikhoanService;
 
-        public NhanvienAPIController(AppDBContext context, IMapper mapper)
+        public NhanvienAPIController(AppDBContext context, IMapper mapper, ITaikhoanService taikhoanService)
         {
             _context = context;
+            _taikhoanService = taikhoanService;
             this._responseDto = new ResponseDto();
             _mapper = mapper;
         }
 
         // GET: Nhanvien list
         [HttpGet]
-        public ResponseDto Get()
+        public async Task<IActionResult> GetListNV()
         {
-            try
+            var models = await _taikhoanService.GetListNhanVat();
+            if (models.IsSuccess == false)
             {
-                IEnumerable<Nhanvien> nhanviens = _context.Nhanviens.ToList();
-                _responseDto.Result = _mapper.Map<IEnumerable<NhanvienDto>>(nhanviens);
+                return BadRequest(models.Message);
             }
-            catch(Exception ex) { 
-                _responseDto.IsSuccess = false;
-                _responseDto.Message = ex.Message;
-            }
-            return _responseDto;
-        }
-        [HttpGet]
-        [Route("{id:int}")]
-        public ResponseDto GetNhanvien(int id)
-        {
-            try
-            {
-                var nhanvien = _context.Nhanviens.FirstOrDefault(nv=>nv.NvId == id);
-                _responseDto.Result = _mapper.Map<NhanvienDto>(nhanvien);
-            }
-            catch (Exception ex)
-            {
-                _responseDto.IsSuccess = false;
-                _responseDto.Message = ex.Message;
-            }
-            return _responseDto;
-        }
 
-        [HttpGet]
-        [Route("GetByGmail/{gmail}")]
-        public ResponseDto LoginAccount(string gmail, string pass)
-        {
-            try
-            {
-                var nhanvien = _context.Nhanviens.FirstOrDefault(nv => nv.GmailNv.ToLower() == gmail.ToLower());
-                _responseDto.Result = _mapper.Map<NhanvienDto>(nhanvien);
-            }
-            catch (Exception ex)
-            {
-                _responseDto.IsSuccess = false;
-                _responseDto.Message = ex.Message;
-            }
-            return _responseDto;
+            return Ok(models);
         }
-
+        
         [HttpPost]
-        public ResponseDto CreateNhanvien([FromBody] NhanvienDtoNoID nhanvienDto)
+        public async Task<IActionResult> CreateNhanvien([FromBody] NhanvienDtoNoID nhanvienDto)
         {
             try
             {
-                // Tạo một đối tượng nhân viên mới từ dữ liệu nhận được
-                var obj = _mapper.Map<Nhanvien>(nhanvienDto);
+                ResponseDto model = await _taikhoanService.CreateAccount(nhanvienDto);
 
+                if (model.IsSuccess == true)
+                {
+                    return BadRequest(model.Message);
+;               }
 
-                // Thêm nhân viên mới vào cơ sở dữ liệu
-                _context.Nhanviens.Add(obj);
-                _context.SaveChanges();
-
-                _responseDto.Result = _mapper.Map<NhanvienDto>(obj);
-
-                return _responseDto;
+                return Ok(model);
             }
             catch (Exception ex)
             {
                 _responseDto.IsSuccess = false;
                 _responseDto.Message = ex.Message;
             }
-            return _responseDto;
+            return Ok(_responseDto);
         }
 
-        [HttpPut]
-        public ResponseDto PutNhanvien([FromBody] NhanvienDto nhanvienDto)
-        {
-            try
-            {
-                // Tạo một đối tượng nhân viên mới từ dữ liệu nhận được
-                var obj = _mapper.Map<Nhanvien>(nhanvienDto);
-
-                // Thêm nhân viên mới vào cơ sở dữ liệu
-                _context.Nhanviens.Update(obj);
-                _context.SaveChanges();
-
-                _responseDto.Result = _mapper.Map<NhanvienDto>(obj);
-
-                return _responseDto;
-            }
-            catch (Exception ex)
-            {
-                _responseDto.IsSuccess = false;
-                _responseDto.Message = ex.Message;
-            }
-            return _responseDto;
-        }
-
-        [HttpDelete]
-        [Route("Delete/{id}")]
-        public ResponseDto DeleteNhanvien(int id) 
-        {
-            try
-            {
-                var obj = _context.Nhanviens.FirstOrDefault(nv => nv.NvId == id);
-
-                // Thêm nhân viên mới vào cơ sở dữ liệu
-                _context.Nhanviens.Remove(obj);
-                _context.SaveChanges();
-
-                _responseDto.Result = _mapper.Map<NhanvienDto>(obj);
-
-                return _responseDto;
-            }
-            catch (Exception ex)
-            {
-                _responseDto.IsSuccess = false;
-                _responseDto.Message = ex.Message;
-            }
-            return _responseDto;
-        }
         
     }
 }

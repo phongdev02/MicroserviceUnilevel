@@ -32,7 +32,6 @@ namespace unilevel.Web.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto model)
         {
-
             ResponseDto? response = await _authService.LoginAsync(model);
 
             if (response != null && response.IsSuccess == true)
@@ -96,6 +95,9 @@ namespace unilevel.Web.Controllers
 
             identity.AddClaim(new Claim(ClaimTypes.Name,
                 jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Name).Value));
+
+            identity.AddClaim(new Claim(ClaimTypes.Role,
+                jwt.Claims.FirstOrDefault(u => u.Type == "role").Value));
 
             var principer = new ClaimsPrincipal(identity);
 

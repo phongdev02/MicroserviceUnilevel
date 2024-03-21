@@ -12,8 +12,8 @@ using TaiKhoan.Context;
 namespace TaiKhoan.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20240301024843_addCVAndRole")]
-    partial class addCVAndRole
+    [Migration("20240316160614_editChucvu")]
+    partial class editChucvu
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,16 +51,11 @@ namespace TaiKhoan.Migrations
                     b.Property<DateTime>("NgayTao")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("NhomcvId")
-                        .HasColumnType("int");
-
                     b.Property<string>("TenCv")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ChucvuId");
-
-                    b.HasIndex("NhomcvId");
 
                     b.ToTable("chucVus");
                 });
@@ -76,16 +71,27 @@ namespace TaiKhoan.Migrations
                     b.Property<int?>("ChucvuId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Diachi")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GmailDangnhap")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("GmailNv")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("HinhanhNv")
+                    b.Property<string>("GmailQuanly")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("HinhanhID")
+                        .HasColumnType("int");
 
                     b.Property<string>("HoTen")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MatkhauNv")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("NgayLam")
@@ -95,36 +101,17 @@ namespace TaiKhoan.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Sdt")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TkId")
-                        .HasColumnType("int");
-
-                    b.Property<bool?>("TrangthaiNv")
+                    b.Property<bool>("TrangthaiNv")
                         .HasColumnType("bit");
 
                     b.HasKey("NvId");
 
+                    b.HasIndex("ChucvuId");
+
                     b.ToTable("Nhanviens");
-                });
-
-            modelBuilder.Entity("TaiKhoan.Models.NhomChucVu", b =>
-                {
-                    b.Property<int>("NhomcvId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NhomcvId"));
-
-                    b.Property<int?>("Quyen")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TenNcv")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("NhomcvId");
-
-                    b.ToTable("nhomChucVus");
                 });
 
             modelBuilder.Entity("TaiKhoan.Models.NhomQuyenTruyCap", b =>
@@ -140,7 +127,7 @@ namespace TaiKhoan.Migrations
 
                     b.HasKey("NhomQuyenId");
 
-                    b.ToTable("nhomQuyenTruyCaps");
+                    b.ToTable("nhomChucVus");
                 });
 
             modelBuilder.Entity("TaiKhoan.Models.PhanCapNV", b =>
@@ -227,15 +214,13 @@ namespace TaiKhoan.Migrations
                     b.Navigation("QuyenTruyCap");
                 });
 
-            modelBuilder.Entity("TaiKhoan.Models.ChucVu", b =>
+            modelBuilder.Entity("TaiKhoan.Models.Nhanvien", b =>
                 {
-                    b.HasOne("TaiKhoan.Models.NhomChucVu", "Nhomcv")
-                        .WithMany("ChucVus")
-                        .HasForeignKey("NhomcvId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("TaiKhoan.Models.ChucVu", "ChucVu")
+                        .WithMany("Nhanvien")
+                        .HasForeignKey("ChucvuId");
 
-                    b.Navigation("Nhomcv");
+                    b.Navigation("ChucVu");
                 });
 
             modelBuilder.Entity("TaiKhoan.Models.QuyenTruyCap", b =>
@@ -256,11 +241,8 @@ namespace TaiKhoan.Migrations
             modelBuilder.Entity("TaiKhoan.Models.ChucVu", b =>
                 {
                     b.Navigation("CapQuyens");
-                });
 
-            modelBuilder.Entity("TaiKhoan.Models.NhomChucVu", b =>
-                {
-                    b.Navigation("ChucVus");
+                    b.Navigation("Nhanvien");
                 });
 
             modelBuilder.Entity("TaiKhoan.Models.NhomQuyenTruyCap", b =>
