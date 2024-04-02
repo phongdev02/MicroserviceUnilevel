@@ -4,6 +4,7 @@ using unilevel.Web.Service.IService;
 using unilevel.Web.Models;
 using TaiKhoan.Models.Dto;
 using Newtonsoft.Json;
+using unilevel.Web.Models.Dto;
 
 namespace unilevel.Web.Controllers
 {
@@ -24,7 +25,7 @@ namespace unilevel.Web.Controllers
         {
             List<NhanvienDto> lst = new();
 
-            ResponseDto? response = await _nhanvienSv.GetNhanvienAsync();
+            ResponseDto? response = await _nhanvienSv.GetListNV();
 
             if (response != null && response.IsSuccess == true)
             {
@@ -33,20 +34,6 @@ namespace unilevel.Web.Controllers
             return Ok(lst);
         }
 
-        [HttpGet]
-        [Route("{id:int}")]
-        public async Task<IActionResult> GetID(int id)
-        {
-            NhanvienDto lst = new();
-
-            ResponseDto? response = await _nhanvienSv.GetNhanvienByIDAsync(id);
-
-            if (response != null && response.IsSuccess == true)
-            {
-                lst = JsonConvert.DeserializeObject<NhanvienDto>(Convert.ToString(response.Result));
-            }
-            return Ok(lst);
-        }
 
         [HttpPost]
         public async Task<IActionResult> PostID([FromBody] NhanvienDto nhanvienDto)
@@ -55,7 +42,7 @@ namespace unilevel.Web.Controllers
             {
                 NhanvienDto lst = new();
 
-                ResponseDto? response = await _nhanvienSv.CreateNhanvienAsync(nhanvienDto);
+                ResponseDto? response = await _nhanvienSv.CreateNhanvien(nhanvienDto);
 
                 if (response != null && response.IsSuccess == true)
                 {

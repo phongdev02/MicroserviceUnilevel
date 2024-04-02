@@ -2,9 +2,12 @@ using AuthAPI.Context;
 using AuthAPI.Models;
 using AuthAPI.Service;
 using AuthAPI.Service.IService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AuthAPI
 {
@@ -20,7 +23,7 @@ namespace AuthAPI
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            //chuyen doi tu trong file setting de co the su dung bang class
+            //chuyen doi JWT to class
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("ApiSettings:JwtOptions"));
 
             // cau hinh mot so table da duoc .net cau hinh san
@@ -45,6 +48,7 @@ namespace AuthAPI
             }
 
             app.UseHttpsRedirection();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
