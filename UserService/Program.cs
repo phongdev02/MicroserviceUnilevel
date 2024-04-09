@@ -1,8 +1,11 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using UserService.Context;
+using UserService.Service.SetFunc;
 using UserService.Service;
 using UserService.Service.IService;
+using Microsoft.AspNetCore.Hosting;
+using UserService.Models;
 
 
 namespace UserService
@@ -24,11 +27,16 @@ namespace UserService
             builder.Services.AddSingleton(iMapper);
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+
+            //setting singleton
+            builder.Services.AddSingleton<KhuVuc>();
+
             //setting class
             builder.Services.AddScoped<ITaikhoanService, TaikhoanService>();
             builder.Services.AddScoped<IChucvuService, ChucvuService>();
 
             builder.Services.AddScoped<IKhuvucService, KhuvucService>();
+            builder.Services.AddScoped<INPPService, NPPService>();
 
             // Add services to the container.
             builder.Services.AddControllers();

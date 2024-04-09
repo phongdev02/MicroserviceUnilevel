@@ -2,7 +2,7 @@
 using UserService.Context;
 using UserService.Models;
 
-namespace UserService.Service
+namespace UserService.Service.SetFunc
 {
     public class SeedData
     {

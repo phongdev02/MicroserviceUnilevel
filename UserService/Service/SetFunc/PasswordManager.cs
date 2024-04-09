@@ -1,7 +1,7 @@
 ﻿using BCrypt.Net;
 using System.Security.Cryptography;
 
-namespace UserService.Service
+namespace UserService.Service.SetFunc
 {
     public class PasswordManager
     {

@@ -20,7 +20,6 @@ namespace unilevel.Web.Service
             {
                 ApiType = SD.ApiType.GET,
                 Url = SD.NhanvienApiBase + "/api/NhanvienAPI"
-
             });
         }
 

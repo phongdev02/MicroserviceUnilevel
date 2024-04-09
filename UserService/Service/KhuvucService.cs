@@ -13,21 +13,24 @@ namespace UserService.Service
         private readonly AppDBContext _context;
         private ResponseDto _responseDto;
         private IMapper _mapper;
-        public KhuvucService(AppDBContext appDBContext, IMapper mapper)
+        private readonly KhuVuc _area;
+        public KhuvucService(AppDBContext appDBContext, IMapper mapper, KhuVuc kv)
         {
             _context = appDBContext;
             _responseDto = new ResponseDto();
             _mapper = mapper;
+            _area = kv;
         }
-        public async Task<ResponseDto> AddArea(KhuVuc model)
+        public async Task<ResponseDto> AddArea(KhuvucDto model)
         {
             try
             {
-                var AreaCode = await _context.khuVucs.FirstOrDefaultAsync(x => compareString(x.KhuvucCode, model.KhuvucCode));
-                var AreaName = await _context.khuVucs.FirstOrDefaultAsync(x => compareString(x.TenKhuvuc, model.TenKhuvuc));
+                var checkCode = checkExistAreaCode(model.KhuvucCode);
+                var checkName = checkExistAreaName(model.TenKhuvuc);
+
                 string message = "Area name or code already exists.";
 
-                if (AreaCode != null || AreaName != null)
+                if (checkCode != null || checkName != null)
                     return _responseDto = new()
                     {
                         IsSuccess = false,
@@ -36,9 +39,16 @@ namespace UserService.Service
                     };
 
                 model.Trangthai = true;
-                model.KhuvucCode = model.KhuvucCode.ToUpper();
+                model.KhuvucCode = model.KhuvucCode.Trim().ToUpper();
 
-                _context.khuVucs.Add(model);
+                var khuvuc = new KhuVuc()
+                {
+                    KhuvucCode = model.KhuvucCode,
+                    TenKhuvuc = model.TenKhuvuc,
+                    Trangthai = model.Trangthai
+                };
+
+                _context.khuVucs.Add(khuvuc);
                 _context.SaveChanges();
 
                 return _responseDto = new()
@@ -63,13 +73,14 @@ namespace UserService.Service
         {
             try
             {
-                var Area = await _context.khuVucs.FirstOrDefaultAsync(x => compareString(x.KhuvucCode, KhuvucID));
-                if (Area == null)
+                var Area = checkExistAreaCode(KhuvucID);
+
+                if (Area != null)
                 {
                     return _responseDto = new()
                     {
                         IsSuccess = false,
-                        Message = "No Area, try again"
+                        Message = "Delete no success"
                     };
                 }
 
@@ -99,7 +110,7 @@ namespace UserService.Service
             try
             {
                 // kiểm tra có đúng id không
-                var Area = await _context.khuVucs.FirstOrDefaultAsync(x => compareString(x.KhuvucCode, KhuvucID));
+                var Area = checkExistAreaCode(KhuvucID);
 
                 if (Area == null)
                 {
@@ -110,7 +121,7 @@ namespace UserService.Service
                     };
                 }
                 // kiểm tra tên có tồn tại chưa
-                var AreaName = await _context.khuVucs.FirstOrDefaultAsync(x => compareString(x.TenKhuvuc.Trim(), NameArea.Trim()));
+                var AreaName = checkExistAreaName(NameArea);
 
                 if (AreaName != null)
                 {
@@ -150,22 +161,22 @@ namespace UserService.Service
         {
             try
             {
-                var check = await GetAreas();
+                var lsNPP = await GetAreas();
 
-                if (check.IsSuccess == false || check.Result == null)
+                if (lsNPP.IsSuccess == false || lsNPP.Result == null)
                 {
                     return _responseDto = new()
                     {
                         IsSuccess = false,
-                        Message = check.Message
+                        Message = lsNPP.Message
                     };
                 }
 
-                var lsArea = (List<AreaViewDto>)check.Result;
+                var lsArea = (List<AreaViewDto>)lsNPP.Result;
 
-                var Areas = lsArea.Where(x => x.KhuvucCode.Trim().Contains(inputSearch.Trim()) || x.TenKhuvuc.Trim().Contains(inputSearch.Trim()));
+                List<AreaViewDto> Areas = lsArea.Where(x => x.KhuvucCode.Trim().ToLower().Contains(inputSearch.Trim()) || x.TenKhuvuc.Trim().ToLower().Contains(inputSearch.Trim())).ToList();
 
-                if (Areas == null)
+                if (Areas.Count == 0)
                 {
                     return _responseDto = new()
                     {
@@ -195,7 +206,7 @@ namespace UserService.Service
         {
             try
             {
-                var Area = await _context.khuVucs.FirstOrDefaultAsync(x => compareString(x.KhuvucCode, KhuvucID));
+                var Area = checkExistAreaCode(KhuvucID);
 
                 if (Area == null)
                 {
@@ -209,7 +220,7 @@ namespace UserService.Service
                 int slNPP = 0;
 
                 if (Area != null)
-                    slNPP = _context.nhaPhanPhois.Where(x => compareString(x.KhuvucID, Area.KhuvucCode)).Count();
+                    slNPP = _context.nhaPhanPhois.Where(x => x.KhuvucID.Trim().ToLower().Equals(Area.KhuvucCode.Trim().ToLower())).Count();
 
                 //using mapper
 
@@ -255,9 +266,9 @@ namespace UserService.Service
 
                 foreach (var item in Area)
                 {
-                    numberNpp = lsNPP.Where(x => compareString(x.KhuvucID.Trim().ToUpper(), item.KhuvucCode.Trim().ToUpper())).Count();
+                    numberNpp = lsNPP.Where(x => x.KhuvucID.Trim().ToUpper().Equals(item.KhuvucCode.Trim().ToUpper())).Count();
 
-                    AreaViewDto AreaMapper = _mapper.Map<AreaViewDto>(Area);
+                    AreaViewDto AreaMapper = _mapper.Map<AreaViewDto>(item);
                     AreaMapper.slNhaPP = numberNpp;
 
                     lsAreaView.Add(AreaMapper);
@@ -281,9 +292,19 @@ namespace UserService.Service
             }
         }
 
-        private bool compareString(string a, string b)
+        private KhuVuc? checkExistAreaCode(string code)
         {
-            return string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
+
+            var AreaCode = _context.khuVucs.FirstOrDefault(x => x.KhuvucCode.Trim().ToLower().Equals(code.Trim().ToLower()));
+
+            return AreaCode;
+        }
+
+        private KhuVuc? checkExistAreaName(string name)
+        {
+            var AreaName = _context.khuVucs.FirstOrDefault(x => x.TenKhuvuc.Trim().ToLower().Equals(name.Trim().ToLower()));
+
+            return AreaName;
         }
     }
 }

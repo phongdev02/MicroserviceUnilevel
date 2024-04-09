@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Reflection.Metadata;
 using UserService.Models;
 
 namespace UserService.Context
@@ -39,6 +40,12 @@ namespace UserService.Context
             .HasOne(nv => nv.ChucVu)            // Một nhân viên chỉ có một chức vụ
             .WithMany(cv => cv.Nhanvien)        // Một chức vụ có thể có nhiều nhân viên
             .HasForeignKey(nv => nv.ChucvuId);
+
+            modelBuilder.Entity<NhaPhanPhoi>()
+            .HasMany(e => e.Nhanvien)
+            .WithOne(e => e.nhaPhanPhoi)
+            .HasForeignKey(e => e.nppID)
+            .HasPrincipalKey(e => e.nppID);
         }
     }
 }

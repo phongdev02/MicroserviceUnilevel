@@ -9,6 +9,7 @@ using UserService.Models.Dto;
 using UserService.Context;
 using UserService.Service.IService;
 using UserService.Models;
+using UserService.Service.SetFunc;
 
 namespace UserService.Service
 {
@@ -220,6 +221,11 @@ namespace UserService.Service
                 throw;
             }
             return _responseDto;
+        }
+
+        public Task<ResponseDto> findNameOrGmail(string textInput)
+        {
+            throw new NotImplementedException();
         }
     }
 }

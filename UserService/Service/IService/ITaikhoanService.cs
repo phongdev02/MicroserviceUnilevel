@@ -11,6 +11,7 @@ namespace UserService.Service.IService
         Task<ResponseDto> CreateAccount([FromBody] NhanvienDtoNoID nhanvienDtoNoID);
         Task<ResponseDto> EditAccount([FromBody] NhanvienDtoNoID nhanvienDtoNoID);
         Task<ResponseDto> StatusAccount(int id);
+        Task<ResponseDto> findNameOrGmail(string textInput);
 
     }
 }
