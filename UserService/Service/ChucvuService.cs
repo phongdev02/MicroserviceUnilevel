@@ -56,7 +56,7 @@ namespace UserService.Service
         {
             try
             {
-                var chucvu = await _context.chucVus.FirstOrDefaultAsync(cv => cv.TenCv.Contains(model.TenCv));
+                var chucvu = await checkNameCV(model);
 
                 if (chucvu != null)
                 {
@@ -169,6 +169,11 @@ namespace UserService.Service
                     Result = null
                 };
             }
+        }
+
+        private async Task<ChucVu?> checkNameCV(ChucvuDto model)
+        {
+            return  await _context.chucVus.FirstOrDefaultAsync(cv => cv.TenCv.Trim().ToLower().Equals(model.TenCv.Trim().ToLower()));
         }
     }
 }

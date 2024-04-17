@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using unilevel.Web.Service;
+using Newtonsoft.Json;
 using unilevel.Web.Service.IService;
 using unilevel.Web.Models;
-using TaiKhoan.Models.Dto;
-using Newtonsoft.Json;
-using unilevel.Web.Models.Dto;
 
 namespace unilevel.Web.Controllers
 {

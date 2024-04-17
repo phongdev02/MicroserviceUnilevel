@@ -27,14 +27,10 @@ namespace UserService
             builder.Services.AddSingleton(iMapper);
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-
-            //setting singleton
-            builder.Services.AddSingleton<KhuVuc>();
-
             //setting class
             builder.Services.AddScoped<ITaikhoanService, TaikhoanService>();
             builder.Services.AddScoped<IChucvuService, ChucvuService>();
-
+            
             builder.Services.AddScoped<IKhuvucService, KhuvucService>();
             builder.Services.AddScoped<INPPService, NPPService>();
 

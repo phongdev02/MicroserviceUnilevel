@@ -3,15 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using TaiKhoan.Models.Dto;
-using unilevel.Web.Models;
-using unilevel.Web.Service;
-using unilevel.Web.Service.IService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Azure;
+using unilevel.Web.Models;
+using unilevel.Web.Service.IService;
 
 namespace unilevel.Web.Controllers
 {
@@ -27,7 +25,7 @@ namespace unilevel.Web.Controllers
             _authService = authService;
             _responDto = new ResponseDto();
             _tokenProvider = tokenProvider;
-         }
+        }
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto model)
@@ -41,7 +39,7 @@ namespace unilevel.Web.Controllers
                 await signInUser(lst);
 
                 _tokenProvider.setToken(lst.Token);
-                
+
                 _responDto.Result = lst;
             }
 
@@ -69,7 +67,7 @@ namespace unilevel.Web.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] RegistrationRequestDto  model)
+        public async Task<IActionResult> Register([FromBody] RegistrationRequestDto model)
         {
 
             ResponseDto? response = await _authService.RegisterAsync(model);
@@ -84,7 +82,7 @@ namespace unilevel.Web.Controllers
             var jwt = handler.ReadJwtToken(model.Token);
 
             var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-            identity.AddClaim(new Claim(JwtRegisteredClaimNames.Email, 
+            identity.AddClaim(new Claim(JwtRegisteredClaimNames.Email,
                 jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
 
             identity.AddClaim(new Claim(JwtRegisteredClaimNames.Sub,

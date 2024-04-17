@@ -1,7 +1,5 @@
-﻿using TaiKhoan.Models.Dto;
-using unilevel.Web.Models.Dto;
+﻿using unilevel.Web.Service.IService;
 using unilevel.Web.Models;
-using unilevel.Web.Service.IService;
 using unilevel.Web.Utility;
 
 namespace unilevel.Web.Service
@@ -19,7 +17,7 @@ namespace unilevel.Web.Service
             return await _baseService.SenAsync(new RequestDto()
             {
                 ApiType = SD.ApiType.GET,
-                Url = SD.NhanvienApiBase + "/api/NhanvienAPI"
+                Url = SD.UserApiBase + "/api/NhanvienAPI"
             });
         }
 
@@ -29,7 +27,7 @@ namespace unilevel.Web.Service
             {
                 ApiType = SD.ApiType.POST,
                 Data = nhanvienDto,
-                Url = SD.NhanvienApiBase + "/api/NhanvienAPI/"
+                Url = SD.UserApiBase + "/api/NhanvienAPI/"
             });
         }
     }

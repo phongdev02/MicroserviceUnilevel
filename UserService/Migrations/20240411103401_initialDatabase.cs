@@ -3,14 +3,29 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace UserService.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class initialDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Buois",
+                columns: table => new
+                {
+                    buoiID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    tenBuoi = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Buois", x => x.buoiID);
+                });
+
             migrationBuilder.CreateTable(
                 name: "chucVus",
                 columns: table => new
@@ -85,12 +100,12 @@ namespace UserService.Migrations
                 {
                     nppID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    tenNPP = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Diachi = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    tenNPP = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Diachi = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SDT = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    trangthai = table.Column<bool>(type: "bit", nullable: true),
-                    KhuvucID = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    trangthai = table.Column<bool>(type: "bit", nullable: false),
+                    KhuvucID = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -99,7 +114,8 @@ namespace UserService.Migrations
                         name: "FK_nhaPhanPhois_khuVucs_KhuvucID",
                         column: x => x.KhuvucID,
                         principalTable: "khuVucs",
-                        principalColumn: "KhuvucCode");
+                        principalColumn: "KhuvucCode",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -142,13 +158,13 @@ namespace UserService.Migrations
                     Diachi = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NgayLam = table.Column<DateTime>(type: "datetime2", nullable: true),
                     TrangthaiNv = table.Column<bool>(type: "bit", nullable: false),
-                    Sdt = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    trangThaiTaiKhoan = table.Column<bool>(type: "bit", nullable: false),
+                    Sdt = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     nguoidung = table.Column<bool>(type: "bit", nullable: true),
                     ChucvuId = table.Column<int>(type: "int", nullable: true),
                     nppID = table.Column<int>(type: "int", nullable: false),
                     quanlyNPP = table.Column<bool>(type: "bit", nullable: true),
-                    HinhanhID = table.Column<int>(type: "int", nullable: true),
-                    KhuvucCode = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    HinhanhID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -158,12 +174,6 @@ namespace UserService.Migrations
                         column: x => x.ChucvuId,
                         principalTable: "chucVus",
                         principalColumn: "ChucvuId");
-                    table.ForeignKey(
-                        name: "FK_Nhanviens_khuVucs_KhuvucCode",
-                        column: x => x.KhuvucCode,
-                        principalTable: "khuVucs",
-                        principalColumn: "KhuvucCode",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Nhanviens_nhaPhanPhois_nppID",
                         column: x => x.nppID,
@@ -196,6 +206,46 @@ namespace UserService.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ViengThams",
+                columns: table => new
+                {
+                    viengThamID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NgayTham = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    buoiID = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    NhacNho = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Mota = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NguoiTaoID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ViengThams", x => x.viengThamID);
+                    table.ForeignKey(
+                        name: "FK_ViengThams_Buois_buoiID",
+                        column: x => x.buoiID,
+                        principalTable: "Buois",
+                        principalColumn: "buoiID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ViengThams_Nhanviens_NguoiTaoID",
+                        column: x => x.NguoiTaoID,
+                        principalTable: "Nhanviens",
+                        principalColumn: "NvId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Buois",
+                columns: new[] { "buoiID", "tenBuoi" },
+                values: new object[,]
+                {
+                    { 1, "Buổi sáng" },
+                    { 2, "Buổi chiều" },
+                    { 3, "Cả ngày" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_CapQuyen_ChucvuId",
                 table: "CapQuyen",
@@ -205,11 +255,6 @@ namespace UserService.Migrations
                 name: "IX_Nhanviens_ChucvuId",
                 table: "Nhanviens",
                 column: "ChucvuId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Nhanviens_KhuvucCode",
-                table: "Nhanviens",
-                column: "KhuvucCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Nhanviens_nppID",
@@ -230,6 +275,16 @@ namespace UserService.Migrations
                 name: "IX_quyenTruyCaps_QuyenId",
                 table: "quyenTruyCaps",
                 column: "QuyenId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ViengThams_buoiID",
+                table: "ViengThams",
+                column: "buoiID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ViengThams_NguoiTaoID",
+                table: "ViengThams",
+                column: "NguoiTaoID");
         }
 
         /// <inheritdoc />
@@ -239,25 +294,31 @@ namespace UserService.Migrations
                 name: "CapQuyen");
 
             migrationBuilder.DropTable(
-                name: "Nhanviens");
+                name: "PhanCapNVs");
 
             migrationBuilder.DropTable(
-                name: "PhanCapNVs");
+                name: "ViengThams");
 
             migrationBuilder.DropTable(
                 name: "quyenTruyCaps");
 
             migrationBuilder.DropTable(
-                name: "chucVus");
+                name: "Buois");
 
             migrationBuilder.DropTable(
-                name: "nhaPhanPhois");
+                name: "Nhanviens");
 
             migrationBuilder.DropTable(
                 name: "nhomQuyenTruyCap");
 
             migrationBuilder.DropTable(
                 name: "quyens");
+
+            migrationBuilder.DropTable(
+                name: "chucVus");
+
+            migrationBuilder.DropTable(
+                name: "nhaPhanPhois");
 
             migrationBuilder.DropTable(
                 name: "khuVucs");

@@ -1,11 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System.Text;
-using TaiKhoan.Models.Dto;
-using unilevel.Web.Models;
-using unilevel.Web.Service.IService;
-using unilevel.Web.Utility;
 using static unilevel.Web.Utility.SD;
 using System.Net;
+using unilevel.Web.Models;
+using unilevel.Web.Service.IService;
 
 namespace unilevel.Web.Service
 {
@@ -22,7 +20,7 @@ namespace unilevel.Web.Service
         {
             try
             {
-                HttpClient client = httpClientFactory.CreateClient("NhanvienAPI");
+                HttpClient client = httpClientFactory.CreateClient("UserAPI");
                 HttpRequestMessage message = new HttpRequestMessage();
 
                 message.Headers.Add("Accept", "application/json");

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace unilevel.Web.Models.Dto
+namespace unilevel.Web.Models
 {
     public class NhanvienDtoNoID
     {

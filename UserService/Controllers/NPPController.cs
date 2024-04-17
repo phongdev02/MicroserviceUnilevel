@@ -5,7 +5,7 @@ using UserService.Service.IService;
 
 namespace UserService.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/NPP")]
     [ApiController]
     public class NPPController : ControllerBase
     {

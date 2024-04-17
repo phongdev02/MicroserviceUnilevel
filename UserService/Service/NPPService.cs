@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using UserService.Context;
 using UserService.Models;
@@ -19,7 +20,7 @@ namespace UserService.Service
             _mapper = mapper;
         }
 
-        public async Task<ResponseDto?> createNPP(NhaPhanPhoiDto model)
+        public async Task<ResponseDto> createNPP(NhaPhanPhoiDto model)
         {
             try
             {
@@ -32,38 +33,33 @@ namespace UserService.Service
                     };
                 }
 
-                var nppDto = new NhaPhanPhoiDto()
-                {
-                    tenNPP = model.tenNPP,
-                    email = model.email,
-                    Diachi = model.Diachi,
-                    SDT = model.SDT,
-                    trangthai = model.trangthai,
-                    KhuvucID = model.KhuvucID.ToUpper().Trim()
-                };
+                var checkArea = _context.khuVucs.FirstOrDefault(kv => kv.KhuvucCode.Trim().ToUpper().Equals(model.KhuvucID.Trim().ToUpper()));
 
-                var NPP = _mapper.Map<NhaPhanPhoi>(nppDto);
+                if (checkArea != null) {
 
-                if (NPP.tenNPP == null || NPP.Diachi == null || NPP.email == null)
+                    NhaPhanPhoi NPP = _mapper.Map<NhaPhanPhoi>(model);
+                    NPP.trangthai = true;
+                    NPP.KhuvucID = checkArea.KhuvucCode;
+
+                    _context.nhaPhanPhois.Add(NPP);
+                    _context.SaveChanges();
+
+                    var getNPP = _mapper.Map<NhaPhanPhoiDto>(NPP);
+
+                    return _responseDto = new()
+                    {
+                        Result = getNPP,
+                        Message = "create Succes NPP"
+                    };
+                }
+                else
                 {
                     return new ResponseDto()
                     {
                         IsSuccess = false,
-                        Message = "Value in NPP is not null"
+                        Message = "Area code not exist"
                     };
                 }
-
-                _context.nhaPhanPhois.Add(NPP);
-                _context.SaveChanges();
-
-                var getNPP = _mapper.Map<NhaPhanPhoiDto>(NPP);
-
-                return _responseDto = new()
-                {
-                    Result = getNPP,
-                    Message = "create Succes NPP"
-                };
-                
             }
             catch (Exception ex)
             {
@@ -75,24 +71,35 @@ namespace UserService.Service
             }
         }
 
-        public async Task<ResponseDto?> createNPPTemplate(string code)
+        public async Task<ResponseDto> createNPPTemplate(string code)
         {
             try
             {
-                var model = new NhaPhanPhoiDto();
-                model.KhuvucID = code.ToUpper().Trim();
+                //check area code exist 
+                bool area = false;
+                area = _context.khuVucs.Any(area => area.KhuvucCode.Trim().ToLower().Equals(code.Trim().ToLower()));
 
-                var NPP = _mapper.Map<NhaPhanPhoi>(model);
-
-                var lsNPPTemplate = _context.nhaPhanPhois.Where(npp => compareString(npp.KhuvucID, code) && npp.tenNPP == null).ToList();
-                if (lsNPPTemplate.Count == 0)
+                if(area == false) return _responseDto = new()
                 {
+                    Result = null,
+                    Message = "Area not exist"
+                };
+
+                var lsNPPTemplate = _context.nhaPhanPhois.Any(npp => npp.KhuvucID.Trim().ToUpper().Equals(code.Trim().ToUpper()) && npp.tenNPP == null);
+
+                if (lsNPPTemplate == false)
+                {
+                    var NPP = new NhaPhanPhoi() { 
+                        trangthai = true,
+                        KhuvucID = code.Trim().ToUpper(),
+                    };
+
                     _context.nhaPhanPhois.Add(NPP);
                     _context.SaveChanges();
 
                     return _responseDto = new()
                     {
-                        Result = model,
+                        Result = _mapper.Map<NhaPhanPhoiDto>(NPP),
                         Message = "create Succes NPP"
                     };
                 }
@@ -101,18 +108,21 @@ namespace UserService.Service
                     return _responseDto = new() 
                     {
                         IsSuccess = false,
-                        Message = "have many one NPP template on Database, please check data on Database and try again" + lsNPPTemplate[0].KhuvucID
+                        Message = "NPP tenplate exist"
                     };
                 }
             }
             catch (Exception ex)
             {
-
-                throw;
+                return _responseDto = new()
+                {
+                    IsSuccess = false,
+                    Message = "Error: " + ex.Message
+                };
             }
         }
 
-        public async Task<ResponseDto?> deleteNPP(int id)
+        public async Task<ResponseDto> deleteNPP(int id)
         {
             try
             {
@@ -161,7 +171,7 @@ namespace UserService.Service
             }
         }
 
-        public async Task<ResponseDto?> findNPP(int id)
+        public async Task<ResponseDto> findNPP(int id)
         {
             try
             {
@@ -222,7 +232,7 @@ namespace UserService.Service
             }
         }
 
-        public async Task<ResponseDto?> getListNPP()
+        public async Task<ResponseDto> getListNPP()
         {
             try
             {
@@ -256,7 +266,7 @@ namespace UserService.Service
             }
         }
 
-        public async Task<ResponseDto?> getListNPPWithCodeArea(string code)
+        public async Task<ResponseDto> getListNPPWithCodeArea(string code)
         {
             try
             {
@@ -290,17 +300,15 @@ namespace UserService.Service
             }
 
         }
-        public async Task<ResponseDto?> getNPPTemplate(string code)
+        public async Task<ResponseDto> getNPPTemplate(string code)
         {
             try
             {
                 var lsNPPTemplate = _context.nhaPhanPhois.Where(npp => npp.tenNPP == null).ToList();
-                var template = lsNPPTemplate.FirstOrDefault(npp=> compareString(npp.KhuvucID, code));
+                var template = lsNPPTemplate.FirstOrDefault(npp=> npp.KhuvucID.Trim().ToLower().Equals(code.Trim().ToLower()));
 
                 if (template == null)
                 {
-
-
                     return _responseDto = new()
                     {
                         Result = null,
@@ -328,7 +336,7 @@ namespace UserService.Service
 
         }
 
-        public async Task<ResponseDto?> updateNPP(NhaPhanPhoiDto model)
+        public async Task<ResponseDto> updateNPP(NhaPhanPhoiDto model)
         {
             try
             {
@@ -364,11 +372,6 @@ namespace UserService.Service
                     Message = "Error: " + ex.Message
                 };
             }
-        }
-
-        private bool compareString(string a, string b)
-        {
-            return a.Trim().ToUpper().Contains(b.Trim().ToUpper());
         }
     }
 }

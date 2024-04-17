@@ -10,6 +10,6 @@ namespace UserService.Service.IService
         Task<ResponseDto> AddArea(KhuvucDto model);
         Task<ResponseDto> DeleteArea(string KhuvucID);
         Task<ResponseDto> FindArea(string inputSearch);
-        Task<ResponseDto> EditArea(string KhuvucID, string NameArea);
+        Task<ResponseDto> EditArea(KhuvucDto model);
     }
 }

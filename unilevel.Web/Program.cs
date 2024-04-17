@@ -22,21 +22,22 @@ namespace unilevel.Web
             builder.Services.AddScoped<IBaseService, BaseService>();
             builder.Services.AddScoped<INhanvienService, NhanvienService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
-
+            builder.Services.AddScoped<IAreaApiService, AreaApiService>();
+            builder.Services.AddScoped<IAreaService,  AreaService>();
             //register authentication
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
                 options.ExpireTimeSpan = TimeSpan.FromHours(10);
-                
+
                 options.SlidingExpiration = true;
-                
+
                 // tới đường dẫn sau nếu nó đúng
                 options.LoginPath = "/Auth/Login";
                 // tới đường dẫn sau nếu có sai
                 options.AccessDeniedPath = "/Auth/AccessDenied";
             });
 
-            SD.NhanvienApiBase = builder.Configuration["ServiceUrls:NhanvienAPI"];
+            SD.UserApiBase = builder.Configuration["ServiceUrls:UserAPI"];
             SD.AuthAPIBase = builder.Configuration["ServiceUrls:AuthAPI"];
 
             builder.Services.AddScoped<ITokenProvider, TokenProvider>();

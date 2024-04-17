@@ -12,10 +12,10 @@ namespace UserService.Models
         public string? email { get; set; }
         public string? Diachi { get; set; }
         public string? SDT { get; set; }
-        public bool? trangthai { get; set; } 
+        public bool trangthai { get; set; } 
         [ForeignKey("KhuvucID")]
-        public string? KhuvucID { get; set; }                                                                                                                                                                                                                                                           
-        public KhuVuc KhuVuc { get; set; } = new KhuVuc();
+        public string KhuvucID { get; set; }                                                                                                                                                                                                                                                           
+        public KhuVuc KhuVuc { get; set; }
 
         public virtual ICollection<Nhanvien> Nhanvien { get; set; } = new List<Nhanvien>();
 

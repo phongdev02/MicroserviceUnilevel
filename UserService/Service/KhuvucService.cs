@@ -14,12 +14,13 @@ namespace UserService.Service
         private ResponseDto _responseDto;
         private IMapper _mapper;
         private readonly KhuVuc _area;
-        public KhuvucService(AppDBContext appDBContext, IMapper mapper, KhuVuc kv)
+        private readonly INPPService _nppService;
+        public KhuvucService(AppDBContext appDBContext, IMapper mapper, INPPService nPPService)
         {
             _context = appDBContext;
             _responseDto = new ResponseDto();
             _mapper = mapper;
-            _area = kv;
+            _nppService = nPPService;
         }
         public async Task<ResponseDto> AddArea(KhuvucDto model)
         {
@@ -51,10 +52,17 @@ namespace UserService.Service
                 _context.khuVucs.Add(khuvuc);
                 _context.SaveChanges();
 
+                var check = await _nppService.createNPPTemplate(khuvuc.KhuvucCode);
+
+                string messageC = "";
+
+                if (check.IsSuccess == true) messageC = "";
+                else messageC = check.Message;
+
                 return _responseDto = new()
                 {
                     IsSuccess = true,
-                    Message = "Create new Area Success!",
+                    Message = "Create new Area Success!" + messageC,
                     Result = model
                 };
             }
@@ -73,9 +81,9 @@ namespace UserService.Service
         {
             try
             {
-                var Area = checkExistAreaCode(KhuvucID);
+                KhuVuc Area = checkExistAreaCode(KhuvucID);
 
-                if (Area != null)
+                if (Area == null)
                 {
                     return _responseDto = new()
                     {
@@ -84,14 +92,67 @@ namespace UserService.Service
                     };
                 }
 
-                _context.khuVucs.Remove(Area);
-                _context.SaveChanges();
+                //check npp template
+                var nppTemplate = await _nppService.getNPPTemplate(Area.KhuvucCode);
+                var responselsNPP = await _nppService.getListNPP();
 
+
+                if(responselsNPP != null && responselsNPP.IsSuccess == true && responselsNPP.Result != null)
+                {
+                    var lsNPP = (List<NhaPhanPhoiDto>)responselsNPP.Result;
+                    var checkNPP = lsNPP.Any(npp => npp.tenNPP != null);
+
+                    if(checkNPP == true)
+                    {
+                        return _responseDto = new()
+                        {
+                            IsSuccess = false,
+                            Message = "Area with code "+ KhuvucID + " cannot remove because area has user."
+                        };
+                    }
+                }
+
+                if (nppTemplate == null)
+                {
+                    return _responseDto = new()
+                    {
+                        IsSuccess = false,
+                        Message = "delete area not success",
+                    };
+                }
+
+                if ( nppTemplate.IsSuccess == false) {
+                    AreaDeleteData(Area);
+
+                    return _responseDto = new()
+                    {
+                        IsSuccess = true,
+                        Result = _mapper.Map<KhuvucDto>(Area),
+                        Message = "Succes, success delete"
+                    };
+                }
+                else{
+                    NhaPhanPhoiDto npp = new NhaPhanPhoiDto();
+                    npp = (NhaPhanPhoiDto)nppTemplate.Result;
+
+                    var resultDeleteNPP = await _nppService.deleteNPP(npp.nppID);
+
+                    if(resultDeleteNPP.IsSuccess == true)
+                    {
+                        AreaDeleteData(Area);
+
+                        return _responseDto = new()
+                        {
+                            IsSuccess = true,
+                            Result = _mapper.Map<KhuvucDto>(Area),
+                            Message = "Succes, success delete"
+                        };
+                    }
+                }
                 return _responseDto = new()
                 {
-                    IsSuccess = true,
-                    Message = "delete area success",
-                    Result = Area
+                    IsSuccess = false,
+                    Message = "Area with code " + KhuvucID + " cannot remove because area has user."
                 };
             }
             catch (Exception ex)
@@ -105,12 +166,26 @@ namespace UserService.Service
             }
         }
 
-        public async Task<ResponseDto> EditArea(string KhuvucID, string NameArea = "")
+        private void AreaDeleteData(KhuVuc model)
+        {
+            try
+            {
+                _context.khuVucs.Remove(model);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<ResponseDto> EditArea(KhuvucDto model)
         {
             try
             {
                 // kiểm tra có đúng id không
-                var Area = checkExistAreaCode(KhuvucID);
+                var Area = checkExistAreaCode(model.KhuvucCode);
 
                 if (Area == null)
                 {
@@ -121,7 +196,7 @@ namespace UserService.Service
                     };
                 }
                 // kiểm tra tên có tồn tại chưa
-                var AreaName = checkExistAreaName(NameArea);
+                var AreaName = checkExistAreaName(model.TenKhuvuc);
 
                 if (AreaName != null)
                 {
@@ -133,7 +208,7 @@ namespace UserService.Service
                 }
 
                 // edit trong db
-                Area.TenKhuvuc = NameArea;
+                Area.TenKhuvuc = model.TenKhuvuc;
 
                 _context.khuVucs.Update(Area);
                 _context.SaveChanges();
@@ -142,7 +217,7 @@ namespace UserService.Service
                 {
                     IsSuccess = true,
                     Message = "Update Success",
-                    Result = Area
+                    Result = _mapper.Map<KhuvucDto>(Area)
                 };
             }
             catch (Exception ex)

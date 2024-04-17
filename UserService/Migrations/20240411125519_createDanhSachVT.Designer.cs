@@ -12,8 +12,8 @@ using UserService.Context;
 namespace UserService.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20240403124836_addColumnTTTkOnNhanvien")]
-    partial class addColumnTTTkOnNhanvien
+    [Migration("20240411125519_createDanhSachVT")]
+    partial class createDanhSachVT
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,40 @@ namespace UserService.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("UserService.Models.Buoi", b =>
+                {
+                    b.Property<int>("buoiID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("buoiID"));
+
+                    b.Property<string>("tenBuoi")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("buoiID");
+
+                    b.ToTable("Buois");
+
+                    b.HasData(
+                        new
+                        {
+                            buoiID = 1,
+                            tenBuoi = "Buổi sáng"
+                        },
+                        new
+                        {
+                            buoiID = 2,
+                            tenBuoi = "Buổi chiều"
+                        },
+                        new
+                        {
+                            buoiID = 3,
+                            tenBuoi = "Cả ngày"
+                        });
+                });
 
             modelBuilder.Entity("UserService.Models.CapQuyen", b =>
                 {
@@ -60,6 +94,30 @@ namespace UserService.Migrations
                     b.ToTable("chucVus");
                 });
 
+            modelBuilder.Entity("UserService.Models.DanhSachLichViengTham", b =>
+                {
+                    b.Property<int>("viengthamID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("taikhoanID")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("NguoiTao")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("NhanvienNvId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("TrangThaiThamDu")
+                        .HasColumnType("bit");
+
+                    b.HasKey("viengthamID", "taikhoanID");
+
+                    b.HasIndex("NhanvienNvId");
+
+                    b.ToTable("DanhSachLichViengTham");
+                });
+
             modelBuilder.Entity("UserService.Models.KhuVuc", b =>
                 {
                     b.Property<string>("KhuvucCode")
@@ -86,24 +144,22 @@ namespace UserService.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("nppID"));
 
                     b.Property<string>("Diachi")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("KhuvucID")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("SDT")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("tenNPP")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("trangthai")
+                    b.Property<bool>("trangthai")
                         .HasColumnType("bit");
 
                     b.HasKey("nppID");
@@ -143,10 +199,6 @@ namespace UserService.Migrations
                     b.Property<string>("HoTen")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("KhuvucCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("MatkhauNv")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -178,8 +230,6 @@ namespace UserService.Migrations
                     b.HasKey("NvId");
 
                     b.HasIndex("ChucvuId");
-
-                    b.HasIndex("KhuvucCode");
 
                     b.HasIndex("nppID");
 
@@ -267,6 +317,39 @@ namespace UserService.Migrations
                     b.ToTable("quyenTruyCaps");
                 });
 
+            modelBuilder.Entity("UserService.Models.ViengTham", b =>
+                {
+                    b.Property<int>("viengThamID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("viengThamID"));
+
+                    b.Property<string>("Mota")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("NgayTao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("NgayThucHien")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("NhacNho")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("buoiID")
+                        .HasColumnType("int");
+
+                    b.HasKey("viengThamID");
+
+                    b.HasIndex("buoiID");
+
+                    b.ToTable("ViengThams");
+                });
+
             modelBuilder.Entity("UserService.Models.CapQuyen", b =>
                 {
                     b.HasOne("UserService.Models.ChucVu", "ChucVu")
@@ -286,11 +369,32 @@ namespace UserService.Migrations
                     b.Navigation("QuyenTruyCap");
                 });
 
+            modelBuilder.Entity("UserService.Models.DanhSachLichViengTham", b =>
+                {
+                    b.HasOne("UserService.Models.Nhanvien", "Nhanvien")
+                        .WithMany("DanhSachLichViengThams")
+                        .HasForeignKey("NhanvienNvId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UserService.Models.ViengTham", "ViengTham")
+                        .WithMany("DanhSachLichViengThams")
+                        .HasForeignKey("viengthamID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Nhanvien");
+
+                    b.Navigation("ViengTham");
+                });
+
             modelBuilder.Entity("UserService.Models.NhaPhanPhoi", b =>
                 {
                     b.HasOne("UserService.Models.KhuVuc", "KhuVuc")
                         .WithMany("NhaPhanPhois")
-                        .HasForeignKey("KhuvucID");
+                        .HasForeignKey("KhuvucID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("KhuVuc");
                 });
@@ -301,12 +405,6 @@ namespace UserService.Migrations
                         .WithMany("Nhanvien")
                         .HasForeignKey("ChucvuId");
 
-                    b.HasOne("UserService.Models.KhuVuc", "KhuVuc")
-                        .WithMany("Nhanviens")
-                        .HasForeignKey("KhuvucCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("UserService.Models.NhaPhanPhoi", "nhaPhanPhoi")
                         .WithMany("Nhanvien")
                         .HasForeignKey("nppID")
@@ -314,8 +412,6 @@ namespace UserService.Migrations
                         .IsRequired();
 
                     b.Navigation("ChucVu");
-
-                    b.Navigation("KhuVuc");
 
                     b.Navigation("nhaPhanPhoi");
                 });
@@ -335,6 +431,22 @@ namespace UserService.Migrations
                     b.Navigation("Quyen");
                 });
 
+            modelBuilder.Entity("UserService.Models.ViengTham", b =>
+                {
+                    b.HasOne("UserService.Models.Buoi", "buois")
+                        .WithMany("ViengThams")
+                        .HasForeignKey("buoiID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("buois");
+                });
+
+            modelBuilder.Entity("UserService.Models.Buoi", b =>
+                {
+                    b.Navigation("ViengThams");
+                });
+
             modelBuilder.Entity("UserService.Models.ChucVu", b =>
                 {
                     b.Navigation("CapQuyens");
@@ -345,13 +457,16 @@ namespace UserService.Migrations
             modelBuilder.Entity("UserService.Models.KhuVuc", b =>
                 {
                     b.Navigation("NhaPhanPhois");
-
-                    b.Navigation("Nhanviens");
                 });
 
             modelBuilder.Entity("UserService.Models.NhaPhanPhoi", b =>
                 {
                     b.Navigation("Nhanvien");
+                });
+
+            modelBuilder.Entity("UserService.Models.Nhanvien", b =>
+                {
+                    b.Navigation("DanhSachLichViengThams");
                 });
 
             modelBuilder.Entity("UserService.Models.NhomQuyenTruyCap", b =>
@@ -367,6 +482,11 @@ namespace UserService.Migrations
             modelBuilder.Entity("UserService.Models.QuyenTruyCap", b =>
                 {
                     b.Navigation("CapQuyens");
+                });
+
+            modelBuilder.Entity("UserService.Models.ViengTham", b =>
+                {
+                    b.Navigation("DanhSachLichViengThams");
                 });
 #pragma warning restore 612, 618
         }

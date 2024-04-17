@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using unilevel.Web.Utility;
 using static unilevel.Web.Utility.SD;
 
 namespace unilevel.Web.Models

@@ -28,9 +28,16 @@ namespace UserService
                 config.CreateMap<KhuVuc, AreaViewDto>();
                 config.CreateMap<AreaViewDto, KhuVuc>();
 
+                config.CreateMap<KhuVuc, KhuvucDto>();
+                config.CreateMap<KhuvucDto, KhuVuc>();
+
                 //mapper NPP
                 config.CreateMap<NhaPhanPhoi, NhaPhanPhoiDto>();
                 config.CreateMap<NhaPhanPhoiDto, NhaPhanPhoi>();
+
+                //vieng tham
+                config.CreateMap<ViengTham,  ViengThamDto>();
+                config.CreateMap<ViengThamDto, ViengTham>();
 
             });
 

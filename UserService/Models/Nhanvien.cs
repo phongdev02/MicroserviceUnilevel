@@ -31,5 +31,6 @@ namespace UserService.Models
         public NhaPhanPhoi nhaPhanPhoi { get; set; }
         public bool? quanlyNPP { get; set; }
         public int? HinhanhID { get; set; }
+        public virtual ICollection<DanhSachLichViengTham> DanhSachLichViengThams { get; set; }
     }
 }

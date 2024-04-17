@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace UserService.Models.Dto
+namespace unilevel.Web.Models
 {
     public class NhaPhanPhoiDto
     {

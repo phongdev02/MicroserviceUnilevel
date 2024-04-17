@@ -1,6 +1,4 @@
-﻿using TaiKhoan.Models.Dto;
-using unilevel.Web.Models;
-using unilevel.Web.Models.Dto;
+﻿using unilevel.Web.Models;
 
 namespace unilevel.Web.Service.IService
 {
