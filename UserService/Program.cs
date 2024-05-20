@@ -6,6 +6,9 @@ using UserService.Service;
 using UserService.Service.IService;
 using Microsoft.AspNetCore.Hosting;
 using UserService.Models;
+using Microsoft.OpenApi.Models;
+using Microsoft.Identity.Client;
+using UserService.Models.Dto;
 
 
 namespace UserService
@@ -22,16 +25,20 @@ namespace UserService
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+
+            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("ApiSettings:JwtOptions"));
+
             //setting Imapper
             IMapper iMapper = MappingConfig.RegisterMaps().CreateMapper();
             builder.Services.AddSingleton(iMapper);
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             //setting class
-            builder.Services.AddScoped<ITaikhoanService, TaikhoanService>();
-            builder.Services.AddScoped<IChucvuService, ChucvuService>();
-            
-            builder.Services.AddScoped<IKhuvucService, KhuvucService>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<ITitleService, TitleService>();
+            builder.Services.AddScoped<IJwtTokenGeneratetor,  JwtTokenGeneratetor>();
+
+            builder.Services.AddScoped<IAreaService, AreaService>();
             builder.Services.AddScoped<INPPService, NPPService>();
 
             // Add services to the container.
@@ -40,32 +47,18 @@ namespace UserService
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // setting JWT
-            /*var secret = builder.Configuration.GetValue<string>("ApiSettings:Secret");
-            var issuer = builder.Configuration.GetValue<string>("ApiSettings:Issuer");
-            var audience = builder.Configuration.GetValue<string>("ApiSettings:Audience");
+            //register services send email
+            // Register the MailSettings configuration
+            builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
-            var key = Encoding.ASCII.GetBytes(secret);
+            // Register SendGmailService
+            builder.Services.AddTransient<SendGmailService>();
 
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            IConfiguration _configuration = builder.Configuration;
+            builder.Services.AddOptions();
+            var mailSettings = _configuration.GetSection("MailSettings");
 
-            }).AddJwtBearer(x =>
-            {
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidIssuer = issuer,
-                    ValidAudience = audience,
-                    ValidateAudience = true
-                };
-            });
-            builder.Services.AddAuthorization();*/
-
+            builder.Services.Configure<MailSettings>(mailSettings);
 
             var app = builder.Build();
 
@@ -78,7 +71,8 @@ namespace UserService
 
             app.UseHttpsRedirection();
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
+
             addDataRoleInDB();
 
             app.UseAuthorization();
@@ -111,6 +105,7 @@ namespace UserService
                     new SeedData(services);
                 }
             }
+
         }
     }
 }

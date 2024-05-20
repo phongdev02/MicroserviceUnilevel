@@ -20,13 +20,6 @@ namespace UserService.Service.SetFunc
             return hashedPassword;
         }
 
-        public bool VerifyPassword(string password, string hashedPassword)
-        {
-            // Verify the password
-            bool passwordMatch = BCrypt.Net.BCrypt.Verify(password, hashedPassword);
-
-            return passwordMatch;
-        }
         public string GeneratePassword(int length)
         {
             // Tạo một mảng byte để lưu trữ các ký tự ngẫu nhiên
@@ -41,6 +34,25 @@ namespace UserService.Service.SetFunc
             // Chuyển đổi các byte thành một chuỗi có thể đọc được bằng cách sử dụng bảng mã Base64
             return Convert.ToBase64String(buffer);
         }
+        public string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        public static bool VerifyPassword(string password, string hashedPassword)
+        {
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(password.Trim(), hashedPassword.Trim());
+            }
+            catch (SaltParseException ex)
+            {
+                // Log lỗi chi tiết và thông báo người dùng
+                Console.WriteLine("Invalid salt version: " + ex.Message);
+                return false;
+            }
+        }
+
 
     }
 }

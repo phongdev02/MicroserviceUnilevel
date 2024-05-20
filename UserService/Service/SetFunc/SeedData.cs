@@ -11,10 +11,10 @@ namespace UserService.Service.SetFunc
         public SeedData(IServiceProvider services)
         {
             this.services = services;
-            Initialize();
+            //Initialize();
         }
 
-        public void Initialize()
+/*        public void Initialize()
         {
             using (var scope = services.CreateScope())
             {
@@ -217,6 +217,6 @@ namespace UserService.Service.SetFunc
                 },
             };
             return listOfObjects;
-        }
+        }*/
     }
 }

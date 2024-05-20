@@ -8,7 +8,7 @@ using UserService.Service.IService;
 
 namespace UserService.Service
 {
-    public class ChucvuService : IChucvuService
+    public class ChucvuService 
     {
         private ResponseDto _responseDto;
         private readonly AppDBContext _context;
@@ -19,7 +19,7 @@ namespace UserService.Service
             _context = appDBContext;
             _mapper = mapper;
         }
-
+/*
         public async Task<ResponseDto?> getAllChucvu()
         {
             try
@@ -174,6 +174,6 @@ namespace UserService.Service
         private async Task<ChucVu?> checkNameCV(ChucvuDto model)
         {
             return  await _context.chucVus.FirstOrDefaultAsync(cv => cv.TenCv.Trim().ToLower().Equals(model.TenCv.Trim().ToLower()));
-        }
+        }*/
     }
 }

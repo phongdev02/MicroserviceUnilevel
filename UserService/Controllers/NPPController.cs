@@ -16,7 +16,7 @@ namespace UserService.Controllers
             _npp = iNPPService;
             _responseDto = new ResponseDto();
         }
-
+/*
         [HttpPost("createNPP")]
         public async Task<IActionResult> createNPP([FromBody] NhaPhanPhoiDto model)
         {
@@ -135,6 +135,6 @@ namespace UserService.Controllers
             {
                 return BadRequest(_responseDto.Message);
             }
-        }
+        }*/
     }
 }

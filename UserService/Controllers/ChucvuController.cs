@@ -35,7 +35,7 @@ namespace UserService.Controllers
             }
         }
 
-        [HttpPost("createChucvu")]
+        /*[HttpPost("createChucvu")]
         public async Task<IActionResult> CreateChucvuAsync([FromBody] ChucvuDto model)
         {
             try
@@ -74,7 +74,7 @@ namespace UserService.Controllers
             {
                 return BadRequest(ex.ToString());
             }
-        }
+        }*/
         [HttpPost("grantAllPermission/{id:int}")]
         public async Task<IActionResult> grantAllPermission(int id)
         {

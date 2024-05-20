@@ -10,7 +10,7 @@ namespace UserService.Models
 
         [ForeignKey("buoiID")]
         public int buoiID { get; set; } 
-        public Buoi buois { get; set; } = new Buoi();
+        public Session buois { get; set; } = new Session();
 
         public int Status { get; set; }
 

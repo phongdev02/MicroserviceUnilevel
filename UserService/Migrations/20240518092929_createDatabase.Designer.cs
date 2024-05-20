@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UserService.Context;
 
@@ -11,9 +12,11 @@ using UserService.Context;
 namespace UserService.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240518092929_createDatabase")]
+    partial class createDatabase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,40 +85,6 @@ namespace UserService.Migrations
                     b.ToTable("Areas");
                 });
 
-            modelBuilder.Entity("UserService.Models.Distributor", b =>
-                {
-                    b.Property<int>("disID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("disID"));
-
-                    b.Property<string>("NumberPhone")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("areacode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("disEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("disName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("location")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("status")
-                        .HasColumnType("bit");
-
-                    b.HasKey("disID");
-
-                    b.HasIndex("areacode");
-
-                    b.ToTable("Distributors");
-                });
-
             modelBuilder.Entity("UserService.Models.Title", b =>
                 {
                     b.Property<int>("titleID")
@@ -156,17 +125,6 @@ namespace UserService.Migrations
                     b.Navigation("title");
                 });
 
-            modelBuilder.Entity("UserService.Models.Distributor", b =>
-                {
-                    b.HasOne("UserService.Models.Area", "area")
-                        .WithMany("distributors")
-                        .HasForeignKey("areacode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("area");
-                });
-
             modelBuilder.Entity("UserService.Models.Account", b =>
                 {
                     b.Navigation("accounts");
@@ -175,8 +133,6 @@ namespace UserService.Migrations
             modelBuilder.Entity("UserService.Models.Area", b =>
                 {
                     b.Navigation("accounts");
-
-                    b.Navigation("distributors");
                 });
 
             modelBuilder.Entity("UserService.Models.Title", b =>

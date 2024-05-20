@@ -10,30 +10,26 @@ namespace UserService
         {
             var mappingConfig = new MapperConfiguration(config =>
             {
-                config.CreateMap<Nhanvien, NhanvienDto>();
-                config.CreateMap<NhanvienDto, Nhanvien>();
+                config.CreateMap<Account, AccountDto>();
+                config.CreateMap<AccountDto, Account>();
 
-                config.CreateMap<Nhanvien, NhanvienDtoNoID>();
-                config.CreateMap<NhanvienDtoNoID, Nhanvien>();
-
-                //mapper Chucvu
-                config.CreateMap<ChucVu, ChucvuDto>();
-                config.CreateMap<ChucvuDto, ChucVu>();
-
-                //mapper quyentruycap
-                config.CreateMap<QuyenTruyCap, QuyenTruyCapDto>();
-                config.CreateMap<QuyenTruyCapDto, QuyenTruyCap>();
+                config.CreateMap<Account, AccountDtoNoID>();
+                config.CreateMap<AccountDtoNoID, Account>();
 
                 //mapper area
-                config.CreateMap<KhuVuc, AreaViewDto>();
-                config.CreateMap<AreaViewDto, KhuVuc>();
+                config.CreateMap<Area, AreaViewDto>();
+                config.CreateMap<AreaViewDto, Area>();
 
-                config.CreateMap<KhuVuc, KhuvucDto>();
-                config.CreateMap<KhuvucDto, KhuVuc>();
+                config.CreateMap<Area, AreaDto>();
+                config.CreateMap<AreaDto, Area>();
 
-                //mapper NPP
-                config.CreateMap<NhaPhanPhoi, NhaPhanPhoiDto>();
-                config.CreateMap<NhaPhanPhoiDto, NhaPhanPhoi>();
+                config.CreateMap<Title, TitleDto>();
+                config.CreateMap<TitleDto, Title>();
+
+
+                /*  //mapper NPP
+                  config.CreateMap<distributor, NhaPhanPhoiDto>();
+                  config.CreateMap<NhaPhanPhoiDto, distributor>();*/
 
                 //vieng tham
                 config.CreateMap<ViengTham,  ViengThamDto>();
