@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using unilevel.Web.Models;
+using unilevel.Web.Service.IAPI;
 using unilevel.Web.Service.IService;
 
 namespace unilevel.Web.Service
@@ -12,78 +13,78 @@ namespace unilevel.Web.Service
             _areaApiService = areaApiService;
         }
 
-        public async Task<ResponseDto?> AddArea(KhuvucDto model)
+        public async Task<ResponseDto?> AddAreaAsync(AreaDto model)
         {
-            ResponseDto? response = await _areaApiService.AddArea(model);
+            ResponseDto? response = await _areaApiService.AddAreaAsync(model);
 
             if (response != null && response.IsSuccess == true)
             {
-                var lst = JsonConvert.DeserializeObject<KhuvucDto>(Convert.ToString(response.Result));
+                var lst = JsonConvert.DeserializeObject<AreaDto>(Convert.ToString(response.Result));
                 response.Result = lst;
             }
 
             return response;
         }
 
-        public async Task<ResponseDto?> DeleteArea(string KhuvucID)
+        public async Task<ResponseDto?> DeleteAreaAsync(string areacode)
         {
-            ResponseDto? response = await _areaApiService.DeleteArea(KhuvucID);
+            ResponseDto? response = await _areaApiService.DeleteAreaAsync(areacode);
 
             if (response != null && response.IsSuccess == true)
             {
-                var lst = JsonConvert.DeserializeObject<KhuvucDto>(Convert.ToString(response.Result));
+                var lst = JsonConvert.DeserializeObject<AreaDto>(Convert.ToString(response.Result));
                 response.Result = lst;
             }
 
             return response;
         }
 
-        public async Task<ResponseDto?> EditArea(KhuvucDto model)
+        public async Task<ResponseDto?> EditAreaAsync(AreaDto model)
         {
-            ResponseDto? response = await _areaApiService.EditArea(model);
+            ResponseDto? response = await _areaApiService.EditAreaAsync(model);
 
             if (response != null && response.IsSuccess == true)
             {
-                var lst = JsonConvert.DeserializeObject<KhuvucDto>(Convert.ToString(response.Result));
+                var lst = JsonConvert.DeserializeObject<AreaDto>(Convert.ToString(response.Result));
                 response.Result = lst;
             }
 
             return response;
         }
 
-        public async Task<ResponseDto?> FindArea(string inputSearch)
+        public async Task<ResponseDto?> FindAreaAsync(string inputSearch)
         {
-            ResponseDto? response = await _areaApiService.FindArea(inputSearch);
+            ResponseDto? response = await _areaApiService.FindAreaAsync(inputSearch);
 
             if (response != null && response.IsSuccess == true)
             {
-                var lst = JsonConvert.DeserializeObject<AreaViewDto>(Convert.ToString(response.Result));
+                var lst = JsonConvert.DeserializeObject<AreaDto>(Convert.ToString(response.Result));
                 response.Result = lst;
             }
 
             return response;
         }
 
-        public async Task<ResponseDto?> GetArea(string khuvucID)
+        public async Task<ResponseDto?> GetAreaAsync(string areacode)
         {
-            ResponseDto? response = await _areaApiService.GetArea(khuvucID);
+            ResponseDto? response = await _areaApiService.GetAreaAsync(areacode);
 
             if (response != null && response.IsSuccess == true)
             {
-                var lst = JsonConvert.DeserializeObject<AreaViewDto>(Convert.ToString(response.Result));
+                var lst = JsonConvert.DeserializeObject<AreaDto>(Convert.ToString(response.Result));
                 response.Result = lst;
             }
 
             return response;
         }
 
-        public async Task<ResponseDto?> GetAreas()
+        public async Task<ResponseDto?> GetAreasAsync()
         {
-            ResponseDto? response = await _areaApiService.GetAreas();
+            ResponseDto? response = await _areaApiService.GetAreasAsync();
 
             if (response != null && response.IsSuccess == true)
             {
-                var lst = JsonConvert.DeserializeObject<AreaViewDto>(Convert.ToString(response.Result));
+                var lst = JsonConvert.DeserializeObject<AreaDto>(Convert.ToString(response.Result));
                 response.Result = lst;
             }
 

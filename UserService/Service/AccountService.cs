@@ -11,6 +11,16 @@ using UserService.Service.IService;
 using UserService.Models;
 using UserService.Service.SetFunc;
 using System.Net.Mail;
+using System.Security.Claims;
+using Newtonsoft.Json;
+using Org.BouncyCastle.Crypto.Macs;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.Options;
+using static System.Net.WebRequestMethods;
+using System.Net.WebSockets;
 
 namespace UserService.Service
 {
@@ -19,62 +29,18 @@ namespace UserService.Service
         private readonly AppDBContext _context;
         private ResponseDto _responseDto;
         private PasswordManager _passwordManager;
-        private IMapper _mapper;
-        private IJwtTokenGeneratetor _token;
-
-        public AccountService(AppDBContext dBContext, IMapper mapper, IJwtTokenGeneratetor token)
+        private readonly IMapper _mapper;
+        
+        public AccountService(AppDBContext dBContext, IMapper mapper)
         {
             _context = dBContext;
             _responseDto = new ResponseDto();
             _passwordManager = new PasswordManager();
             _mapper = mapper;
-            _token = token;
         }
 
-        public async Task<ResponseDto?> LogginAccount(string gmail, string pass)
-        {
-            try
-            {
-                var account = await _context.Accounts.FirstOrDefaultAsync(nv => nv.email.ToLower().Trim().Equals(gmail.ToLower().Trim()));
-                if (account == null)
-                {
-                    _responseDto = new ResponseDto()
-                    {
-                        Message = "Tên đăng nhập/gmail hoặc mật khẩu không đúng",
-                        IsSuccess = false
-                    };
-                }
-                else
-                {
-                    if (!PasswordManager.VerifyPassword(pass, account.Password))
-                        return _responseDto = new ResponseDto()
-                        {
-                            Message = "password failt",
-                            IsSuccess = true
-                        };
-
-                    var tam = _token.GenerateToken(_mapper.Map<AccountDto>(account), "admin");
-
-                    _responseDto = new ResponseDto()
-                    {
-                        Message = tam,
-                        IsSuccess = true
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                _responseDto = new ResponseDto()
-                {
-                    Message = ex.Message,
-                    IsSuccess = false
-                };
-                throw;
-            }
-            return _responseDto;
-        }
-
-        public async Task<ResponseDto> StatusAccount(int id)
+       
+        public async Task<ResponseDto> StatusAccountAsync(int id)
         {
             try
             {
@@ -113,7 +79,7 @@ namespace UserService.Service
             return _responseDto;
         }
 
-        public bool IsValidEmail(string email)
+        private bool IsValidEmail(string email)
         {
             try
             {
@@ -127,7 +93,7 @@ namespace UserService.Service
             }
         }
 
-        public async Task<ResponseDto?> CreateAccount([FromBody] AccountDtoNoID model, int? managementID)
+        public async Task<ResponseDto?> CreateAccountAsync([FromBody] AccountDtoNoID model)
         {
             try
             {
@@ -145,7 +111,7 @@ namespace UserService.Service
                 obj.email = model.email;
 
                 // kiểm tra người quản lý của người dùng trên
-                if (managementID != null && managementID != 0) obj.managerID = managementID;
+                if (model.managerID != null && model.managerID != 0) obj.managerID = model.managerID;
                 else obj.managerID = null;
 
                 // kiểm tra khu vực khi thêm người dùng
@@ -177,7 +143,7 @@ namespace UserService.Service
             }
         }
 
-        public async Task<ResponseDto?> AccountSearch(String search)
+        public async Task<ResponseDto?> AccountSearchAsync(String search)
         {
             try
             {
@@ -202,7 +168,7 @@ namespace UserService.Service
                 return new ResponseDto()
                 {
                     IsSuccess = true,
-                    Result = models,
+                    Result =_mapper.Map<List<AccountDto>>(models),
 
                 };
             }
@@ -212,6 +178,162 @@ namespace UserService.Service
                 _responseDto.Message = ex.Message;
 
                 return _responseDto;
+            }
+        }
+
+        
+        public async Task<ResponseDto?> EditAccountAsync([FromBody] AccountDtoNoID model)
+        {
+            try
+            {
+                // Tạo một đối tượng nhân viên mới từ dữ liệu nhận được
+                var obj = _mapper.Map<Account>(model);
+
+                var accout = await _context.Accounts.AnyAsync(acc => acc.accId == obj.accId);
+
+                if(!accout || !IsValidEmail(model.email))
+                {
+                    return _responseDto = new()
+                    {
+                        IsSuccess = false,
+                        Message = "No Availalbe"
+                    };
+                }
+                else
+                {
+                    // kiểm tra người quản lý của người dùng trên
+                    if (model.managerID != null && model.managerID != 0) obj.managerID = model.managerID;
+                    else obj.managerID = null;
+
+                    var hashedPassword = _passwordManager.HashPassword(obj.Password);
+
+                    obj.Password = hashedPassword;
+
+                    _context.Accounts.Update(obj);
+                    _context.SaveChanges();
+
+                    return _responseDto = new(){
+                        Result = _mapper.Map<AccountDto>(obj),
+                        Message = "Edit succes"
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _responseDto.IsSuccess = false;
+                _responseDto.Message = ex.Message;
+
+                return _responseDto;
+            }
+        }
+
+        public async Task<ResponseDto?> GetLsAccountAsync()
+        {
+            try
+            {
+                // Tạo một đối tượng nhân viên mới từ dữ liệu nhận được
+                var lsAccount = _context.Accounts.ToList();
+
+                if (lsAccount.Count == 0)
+                {
+                    return _responseDto = new()
+                    {
+                        Message = "No account"
+                    };
+                }
+                else
+                {
+                    var result = _mapper.Map<List<AccountDto>>(lsAccount);
+
+                    return _responseDto = new()
+                    {
+                        Result = result,
+                        Message = "Find success"
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _responseDto.IsSuccess = false;
+                _responseDto.Message = ex.Message;
+
+                return _responseDto;
+            }
+        }
+
+        public async Task<ResponseDto?> GetAccountAsync(int accid)
+        {
+            try
+            {
+                // Tạo một đối tượng nhân viên mới từ dữ liệu nhận được
+                var account = await _context.Accounts.FirstOrDefaultAsync(acc => acc.accId == accid);
+
+                if (account == null)
+                {
+                    return _responseDto = new()
+                    {
+                        IsSuccess = false,
+                        Message = "No Availalbe"
+                    };
+                }
+                else
+                {
+                    var result = _mapper.Map<AccountDto>(account);
+
+                    return _responseDto = new()
+                    {
+                        Result = result,
+                        Message = "Find success"
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _responseDto.IsSuccess = false;
+                _responseDto.Message = ex.Message;
+
+                return _responseDto;
+            }
+        }
+
+        public async Task<ResponseDto?> DeleteAccountAsync(int accid)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync(acc => acc.accId == accid);
+
+            try
+            {
+                // Tạo một đối tượng nhân viên mới từ dữ liệu nhận được
+
+                if (account == null)
+                {
+                    return _responseDto = new()
+                    {
+                        IsSuccess = false,
+                        Message = "No Availalbe"
+                    };
+                }
+                else
+                {
+                    var result = _mapper.Map<AccountDto>(account);
+
+                    return _responseDto = new()
+                    {
+                        Result = result,
+                        Message = "Delete success"
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                var response = await StatusAccountAsync(accid);
+                if(response == null || response.IsSuccess == false)
+                    return _responseDto = new() { Message = ex.Message };
+
+                return _responseDto = new()
+                {
+                    Result = _mapper.Map<AccountDto>(account),
+                    Message = "Delete success"
+                };
             }
         }
     }

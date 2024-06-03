@@ -21,6 +21,12 @@ namespace UserService.Context
 
         public DbSet<Distributor> Distributors { get; set; }
 
+        //add role
+
+        public DbSet<Role> Roles { get; set; } 
+        public DbSet<RoleGroup> RoleGroups { get; set; }
+        public DbSet<RoleTitle> RoleTitles { get; set; }
+
         /*//table area
         public DbSet<Area> khuVucs { get; set; }
         public DbSet<NhaPhanPhoi> nhaPhanPhois { get; set; }
@@ -70,6 +76,27 @@ namespace UserService.Context
                 .WithMany(a=> a.distributors)
                 .HasForeignKey(a=> a.areacode)
                 .IsRequired(true);
+
+            //set foreign key
+            //title many to many with role => roletitle
+            //set two primary key
+            modelBuilder.Entity<RoleTitle>()
+                .HasKey(item => new { item.titleID, item.roleId });
+
+            modelBuilder.Entity<RoleTitle>()
+                .HasOne(item => item.role)
+                .WithMany(item => item.roleTitles)
+                .HasForeignKey(item => item.roleId);
+
+            modelBuilder.Entity<RoleTitle>()
+                .HasOne(item => item.title)
+                .WithMany(item => item.roleTitles)
+                .HasForeignKey(item => item.titleID);
+
+            modelBuilder.Entity<Role>()
+                .HasOne(item => item.roleGroup)
+                .WithMany(item => item.roles)
+                .HasForeignKey(item => item.rolegroupID);
 
             /*
             modelBuilder.Entity<Buoi>().HasData(

@@ -1,10 +1,9 @@
 ﻿namespace unilevel.Web.Models
 {
-    public class AreaViewDto
+    public class AreaDto
     {
         public string areaCode { get; set; }
         public string areaName { get; set; }
         public bool status { get; set; }
-        public int number { get; set; } = 0;
     }
 }

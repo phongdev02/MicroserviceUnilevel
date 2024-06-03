@@ -22,12 +22,12 @@ namespace UserService.Service
             _mapper = mapper;
             _nppService = nPPService;
         }
-        /*public async Task<ResponseDto> AddArea(AreaDto model)
+        public async Task<ResponseDto> AddAreaAsync(AreaDto model)
         {
             try
             {
-                var checkCode = checkExistAreaCode(model.areaCode);
-                var checkName = checkExistAreaName(model.areaName);
+                var checkCode =await checkExistAreaCode(model.areaCode);
+                var checkName =await checkExistAreaName(model.areaName);
 
                 string message = "Area name or code already exists.";
 
@@ -49,20 +49,13 @@ namespace UserService.Service
                     status = model.status
                 };
 
-                _context.Areas.Add(khuvuc);
-                _context.SaveChanges();
-
-                var check = await _nppService.createNPPTemplate(khuvuc.areaCode);
-
-                string messageC = "";
-
-                if (check.IsSuccess == true) messageC = "";
-                else messageC = check.Message;
+                await _context.Areas.AddAsync(khuvuc);
+                await _context.SaveChangesAsync();
 
                 return _responseDto = new()
                 {
                     IsSuccess = true,
-                    Message = "Create new Area Success!" + messageC,
+                    Message = "Create new Area Success!",
                     Result = model
                 };
             }
@@ -77,78 +70,48 @@ namespace UserService.Service
             }
         }
 
-        public async Task<ResponseDto> DeleteArea(string KhuvucID)
+        public async Task<ResponseDto> DeleteAreaAsync(string KhuvucID)
         {
             try
             {
-                Area Area = checkExistAreaCode(KhuvucID);
+                Area? Area = await checkExistAreaCode(KhuvucID);
 
                 if (Area == null)
                 {
                     return _responseDto = new()
                     {
                         IsSuccess = false,
-                        Message = "Delete no success"
+                        Message = "Area no available"
                     };
                 }
+                //kiem tra co nguoi trong area nay khong
+                int numberAccoutOnArea = 0;
 
-                //check npp template
-                var nppTemplate = await _nppService.getNPPTemplate(Area.areaCode);
-                var responselsNPP = await _nppService.getListNPP();
-
-
-                if(responselsNPP != null && responselsNPP.IsSuccess == true && responselsNPP.Result != null)
+                if (!_context.Accounts.IsNullOrEmpty())
                 {
-                    var lsNPP = (List<NhaPhanPhoiDto>)responselsNPP.Result;
-                    var checkNPP = lsNPP.Any(npp => npp.tenNPP != null);
+                    numberAccoutOnArea = (from account in _context.Accounts
+                                          where !account.areaCode.IsNullOrEmpty() && account.areaCode.Trim().ToUpper().Equals(Area.areaCode.ToUpper())
+                                          select account).Count();
+                }
+                //kiem tra so luong npp trong khu vuc nay
+                int numberDistributorOnArea = 0;
 
-                    if(checkNPP == true)
-                    {
-                        return _responseDto = new()
-                        {
-                            IsSuccess = false,
-                            Message = "Area with code "+ KhuvucID + " cannot remove because area has user."
-                        };
-                    }
+                if (!_context.Accounts.IsNullOrEmpty())
+                {
+                    numberDistributorOnArea = (from Distributor in _context.Distributors where Distributor.areacode.Trim().ToLower().Equals(Area.areaCode.ToLower()) select Distributor).Count();
                 }
 
-                if (nppTemplate == null)
+                if (numberAccoutOnArea != 0 || numberDistributorOnArea != 0)
                 {
                     return _responseDto = new()
                     {
                         IsSuccess = false,
-                        Message = "delete area not success",
+                        Message = "No success"
                     };
                 }
+                _context.Areas.Remove(Area);
+                await _context.SaveChangesAsync();
 
-                if ( nppTemplate.IsSuccess == false) {
-                    AreaDeleteData(Area);
-
-                    return _responseDto = new()
-                    {
-                        IsSuccess = true,
-                        Result = _mapper.Map<AreaDto>(Area),
-                        Message = "Succes, success delete"
-                    };
-                }
-                else{
-                    NhaPhanPhoiDto npp = new NhaPhanPhoiDto();
-                    npp = (NhaPhanPhoiDto)nppTemplate.Result;
-
-                    var resultDeleteNPP = await _nppService.deleteNPP(npp.nppID);
-
-                    if(resultDeleteNPP.IsSuccess == true)
-                    {
-                        AreaDeleteData(Area);
-
-                        return _responseDto = new()
-                        {
-                            IsSuccess = true,
-                            Result = _mapper.Map<AreaDto>(Area),
-                            Message = "Succes, success delete"
-                        };
-                    }
-                }
                 return _responseDto = new()
                 {
                     IsSuccess = false,
@@ -164,39 +127,26 @@ namespace UserService.Service
                 };
                 throw;
             }
-        }*/
-
-        private void AreaDeleteData(Area model)
-        {
-            try
-            {
-                _context.Areas.Remove(model);
-                _context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
         }
 
-        public async Task<ResponseDto> EditArea(AreaDto model)
+        public async Task<ResponseDto> EditAreaAsync(AreaDto model)
         {
             try
             {
                 // kiểm tra có đúng id không
-                var Area = checkExistAreaCode(model.areaCode);
+                var Area = await checkExistAreaCode(model.areaCode);
 
                 if (Area == null)
                 {
                     return _responseDto = new()
                     {
                         IsSuccess = false,
-                        Message = "No Area or name is null"
+                        Message = "Area not available"
                     };
                 }
+
                 // kiểm tra tên có tồn tại chưa
-                var AreaName = checkExistAreaName(model.areaName);
+                var AreaName = await checkExistAreaName(model.areaName);
 
                 if (AreaName != null)
                 {
@@ -211,7 +161,7 @@ namespace UserService.Service
                 Area.areaName = model.areaName;
 
                 _context.Areas.Update(Area);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return _responseDto = new()
                 {
@@ -231,155 +181,147 @@ namespace UserService.Service
             }
         }
 
-        // tim area search qua ten va id cua area trong db
-        //public async Task<ResponseDto> FindArea(string inputSearch)
-        //{
-        //    try
-        //    {
-        //        var lsNPP = await GetAreas();
+        //tim area search qua ten va id cua area trong db
+        public async Task<ResponseDto> FindAreaAsync(string inputSearch)
+        {
+            try
+            {
+                var response = await GetAreasAsync();
 
-        //        if (lsNPP.IsSuccess == false || lsNPP.Result == null)
-        //        {
-        //            return _responseDto = new()
-        //            {
-        //                IsSuccess = false,
-        //                Message = lsNPP.Message
-        //            };
-        //        }
+                if(response == null || response.IsSuccess == false || response.Result == null)
+                {
+                    return _responseDto = new()
+                    {
+                        IsSuccess = false,
+                        Message = response.Message
+                    };
+                }
+                else
+                {
+                    var listArea = from area in (List<AreaViewDto>)response.Result
+                                   where area.areaName.Trim().ToLower().Contains(inputSearch.Trim().ToLower()) ||
+                                   area.areaCode.Trim().ToLower().Contains(inputSearch.Trim().ToLower())
+                                   select area;
 
-        //        var lsArea = (List<AreaViewDto>)lsNPP.Result;
+                    return _responseDto = new()
+                    {
+                        Result = listArea,
+                        Message = "Find success"
+                    };
 
-        //        List<AreaViewDto> Areas = lsArea.Where(x => x.areaCode.Trim().ToLower().Contains(inputSearch.Trim()) || x.areaName.Trim().ToLower().Contains(inputSearch.Trim())).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                return _responseDto = new()
+                {
+                    IsSuccess = false,
+                    Message = "Error : " + ex.ToString().Trim()
+                };
+                throw;
+            }
+        }
 
-        //        if (Areas.Count == 0)
-        //        {
-        //            return _responseDto = new()
-        //            {
-        //                IsSuccess = false,
-        //                Message = "No find result"
-        //            };
-        //        }
 
-        //        return _responseDto = new()
-        //        {
-        //            Result = Areas,
-        //            Message = "find success"
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return _responseDto = new()
-        //        {
-        //            IsSuccess = false,
-        //            Message = "Error : " + ex.ToString().Trim()
-        //        };
-        //        throw;
-        //    }
-        //}
 
-        //public async Task<ResponseDto> GetArea(string KhuvucID)
-        //{
-        //    try
-        //    {
-        //        var Area = checkExistAreaCode(KhuvucID);
+        public async Task<ResponseDto> GetAreasAsync()
+        {
+            try
+            {
+                var Areas = _context.Areas;
 
-        //        if (Area == null)
-        //        {
-        //            return _responseDto = new()
-        //            {
-        //                IsSuccess = false,
-        //                Message = "No Area, try again"
-        //            };
-        //        }
-        //        // so luong nha phan phoi trong khu vuc do
-        //        int slNPP = 0;
+                if (Areas == null)
+                {
+                    return _responseDto = new()
+                    {
+                        IsSuccess = false,
+                        Message = "No Area,add and try again"
+                    };
+                }
 
-        //        if (Area != null)
-        //            slNPP = _context.nhaPhanPhois.Where(x => x.KhuvucID.Trim().ToLower().Equals(Area.areaCode.Trim().ToLower())).Count();
+                var groupDisWithArea = _context.Distributors.GroupBy(item => item.areacode);
 
-        //        //using mapper
+                List<AreaViewDto> areaViews = new List<AreaViewDto>();
+                var lsArea = _context.Areas;
 
-        //        AreaViewDto AreaMapper = _mapper.Map<AreaViewDto>(Area);
-        //        AreaMapper.slNhaPP = slNPP;
+                AreaViewDto areaCheck = new AreaViewDto();
+                AreaViewDto areaView = new AreaViewDto();
 
-        //        return _responseDto = new()
-        //        {
-        //            Result = AreaMapper,
-        //            Message = "find succes"
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return _responseDto = new()
-        //        {
-        //            IsSuccess = false,
-        //            Message = "Error : " + ex.ToString().Trim()
-        //        };
-        //        throw;
-        //    }
-        //}
+                //Nhóm NPP theo area rồi đếm list trong nó
+                areaViews = _mapper.Map<List<AreaViewDto>>(Areas.ToList());
 
-        //public async Task<ResponseDto> GetAreas()
-        //{
-        //    try
-        //    {
-        //        var Area = await _context.Areas.ToListAsync();
+                foreach (var area in groupDisWithArea)
+                {
+                    areaCheck = areaViews.FirstOrDefault(item => item.areaCode.Trim().ToLower().Equals(area.Key.Trim().ToLower()))!;
+                    if (areaCheck != null)
+                    {
+                        areaCheck.number = area.Count();
+                    }
+                }
 
-        //        if (Area == null)
-        //        {
-        //            return _responseDto = new()
-        //            {
-        //                IsSuccess = false,
-        //                Message = "No Area,add and try again"
-        //            };
-        //        }
-        //        var lsNPP = await _context.nhaPhanPhois.ToListAsync();
+                return _responseDto = new()
+                {
+                    Result = areaViews,
+                    Message = "find succes"
+                };
+            }
+            catch (Exception ex)
+            {
+                return _responseDto = new()
+                {
+                    IsSuccess = false,
+                    Message = "Error : " + ex.ToString().Trim()
+                };
+                throw;
+            }
+        }
+        public async Task<ResponseDto> GetAreaAsync(string areacode)
+        {
+            try
+            {
+                var model = await _context.Areas.FirstOrDefaultAsync(item => item.areaCode.Trim().ToLower().Equals(areacode.Trim().ToLower()));
 
-        //        //đếm số lượng nhà phân phối có trong khu vực đó là bao nhiêu
-        //        var lsAreaView = new List<AreaViewDto>();
-        //        int numberNpp = 0;
-
-        //        foreach (var item in Area)
-        //        {
-        //            numberNpp = lsNPP.Where(x => x.KhuvucID.Trim().ToUpper().Equals(item.areaCode.Trim().ToUpper())).Count();
-
-        //            AreaViewDto AreaMapper = _mapper.Map<AreaViewDto>(item);
-        //            AreaMapper.number = numberNpp;
-
-        //            lsAreaView.Add(AreaMapper);
-        //            numberNpp = 0;
-        //        }
-
-        //        return _responseDto = new()
-        //        {
-        //            Result = lsAreaView,
-        //            Message = "find succes"
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return _responseDto = new()
-        //        {
-        //            IsSuccess = false,
-        //            Message = "Error : " + ex.ToString().Trim()
-        //        };
-        //        throw;
-        //    }
-        //}
-
-        private Area? checkExistAreaCode(string code)
+                if (model != null) {
+                    return _responseDto = new()
+                    {
+                        Result = model,
+                        Message = "succes"
+                    };
+                }
+                else
+                {
+                    return _responseDto = new()
+                    {
+                        IsSuccess = false,
+                        Message = "Area unavailable"
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return _responseDto = new()
+                {
+                    IsSuccess = false,
+                    Message = "Error : " + ex.ToString().Trim()
+                };
+                throw;
+            }
+        }
+        private async Task<Area?> checkExistAreaCode(string code)
         {
 
-            var AreaCode = _context.Areas.FirstOrDefault(x => x.areaCode.Trim().ToLower().Equals(code.Trim().ToLower()));
+            var AreaCode = await _context.Areas.FirstOrDefaultAsync(x => x.areaCode.Trim().ToLower().Equals(code.Trim().ToLower()));
 
             return AreaCode;
         }
 
-        private Area? checkExistAreaName(string name)
+        private async Task<Area?> checkExistAreaName(string name)
         {
-            var AreaName = _context.Areas.FirstOrDefault(x => x.areaName.Trim().ToLower().Equals(name.Trim().ToLower()));
+            var AreaName = await _context.Areas.FirstOrDefaultAsync(x => x.areaName.Trim().ToLower().Equals(name.Trim().ToLower()));
 
             return AreaName;
         }
+
+
     }
 }

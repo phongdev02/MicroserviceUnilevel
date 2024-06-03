@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using MimeKit;
+using UserService.Models;
 using UserService.Models.Dto;
 
 namespace UserService.Service
@@ -25,6 +26,7 @@ namespace UserService.Service
             var builder = new BodyBuilder();
 
             builder.HtmlBody = mailContent.body;
+
             email.Body = builder.ToMessageBody();
 
             using var smtp = new MailKit.Net.Smtp.SmtpClient();
@@ -44,12 +46,5 @@ namespace UserService.Service
             await smtp.DisconnectAsync(true);
             return "send succes";
         }
-    }
-
-    public class MailContent
-    {
-        public string to { get; set; }
-        public string subject { get; set; }
-        public string body { get; set; }
     }
 }

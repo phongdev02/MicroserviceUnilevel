@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace unilevel.Web.Models
 {
-    public class NhanvienDto : NhanvienDtoNoID
+    public class AccountDto : AccountDtoNoID
     {
-        public int NvId { get; set; }
+        public int accId { get; set; }
     }
 }

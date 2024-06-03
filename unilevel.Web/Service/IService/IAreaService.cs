@@ -4,11 +4,11 @@ namespace unilevel.Web.Service.IService
 {
     public interface IAreaService
     {
-        Task<ResponseDto?> GetAreas();
-        Task<ResponseDto?> GetArea(string khuvucID);
-        Task<ResponseDto?> AddArea(KhuvucDto model);
-        Task<ResponseDto?> DeleteArea(string KhuvucID);
-        Task<ResponseDto?> FindArea(string inputSearch);
-        Task<ResponseDto?> EditArea(KhuvucDto model);
+        Task<ResponseDto?> GetAreasAsync();
+        Task<ResponseDto?> GetAreaAsync(string areacode);
+        Task<ResponseDto?> AddAreaAsync(AreaDto model);
+        Task<ResponseDto?> DeleteAreaAsync(string areacode);
+        Task<ResponseDto?> FindAreaAsync(string inputSearch);
+        Task<ResponseDto?> EditAreaAsync(AreaDto model);
     }
 }

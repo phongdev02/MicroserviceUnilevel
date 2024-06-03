@@ -1,127 +1,113 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Runtime.CompilerServices;
+﻿using Microsoft.AspNetCore.Mvc;
 using UserService.Models.Dto;
 using UserService.Service;
 using UserService.Service.IService;
 
 namespace UserService.Controllers
 {
+    
     [Route("api/Account")]
     [ApiController]
     public class AccountController : ControllerBase
     {
         private ResponseDto _responseDto;
         private IAccountService _accountService;
-        private readonly SendGmailService _sendGmailService;
-        public AccountController(IAccountService accountService, SendGmailService sendGmailService) {
+        public AccountController(IAccountService accountService)
+        {
             _responseDto = new ResponseDto();
             _accountService = accountService;
-            _sendGmailService = sendGmailService;
         }
 
-        [HttpPost]
-        public async Task<ResponseDto> CreateAccount([FromBody] AccountDtoNoID model, int? managementID)
+        [HttpPut("StatusAccount/{int:id}")]
+        public async Task<IActionResult> StatusAccount(int accid)
         {
-            try
-            {
-                var check = await _accountService.CreateAccount(model, managementID);
+            var responsedto = await _accountService.StatusAccountAsync(accid);
 
-                if (check != null && check.IsSuccess == true) {
-                    return check;
-                }
-
-                return check;
-            }
-            catch (Exception ex)
+            if (responsedto == null || responsedto.IsSuccess == false)
             {
-                return _responseDto = new()
-                {
-                    Result = false,
-                    Message = ex.Message
-                };
+                return BadRequest(responsedto);
             }
+
+            return Ok(responsedto);
         }
 
-        [HttpGet]
-        public async Task<ResponseDto> AccountSearch(String search)
+        [HttpPost("CreateAccount")]
+        public async Task<IActionResult> CreateAccount([FromBody] AccountDtoNoID model)
         {
-            try
-            {
-                var check = await _accountService.AccountSearch(search);
+            var responsedto = await _accountService.CreateAccountAsync(model);
 
-                if (check != null && check.IsSuccess == true)
-                {
-                    return check;
-                }
-
-                return check;
-            }
-            catch (Exception ex)
+            if (responsedto == null || responsedto.IsSuccess == false)
             {
-                return _responseDto = new()
-                {
-                    Result = false,
-                    Message = ex.Message
-                };
+                return BadRequest(responsedto);
             }
+
+            return Ok(responsedto);
         }
 
-        [HttpGet("LogginAccount")]
-        public async Task<ResponseDto> LogginAccount(string gmail, string pass)
+        [HttpPut("EditAccount")]
+        public async Task<IActionResult> EditAccount([FromBody] AccountDtoNoID model)
         {
-            try
-            {
-                var check = await _accountService.LogginAccount(gmail, pass);
+            var responsedto = await _accountService.EditAccountAsync(model);
 
-                if (check != null && check.IsSuccess == true)
-                {
-                    return check;
-                }
-
-                return check;
-            }
-            catch (Exception ex)
+            if (responsedto == null || responsedto.IsSuccess == false)
             {
-                return _responseDto = new()
-                {
-                    Result = false,
-                    Message = ex.Message
-                };
+                return BadRequest(responsedto);
             }
+
+            return Ok(responsedto);
         }
 
-        [HttpGet("SendGmail")]
-        public async Task<ResponseDto?> SendGmail(string noidung)
+        [HttpGet("AccountSearch/{search}")]
+        public async Task<IActionResult> AccountSearch(String search)
         {
-            try
-            {
-                var check = await MailUtils.SendMail("unilevelphong@gmail.com", "n.v.p200200@gmail.com", "test send email", noidung);
+            var responsedto = await _accountService.AccountSearchAsync(search);
 
-                return _responseDto = new()
-                {
-                    Result = check,
-                };
-            }
-            catch (Exception ex)
+            if (responsedto == null || responsedto.IsSuccess == false)
             {
-                return _responseDto = new()
-                {
-                    Result = false,
-                    Message = ex.Message
-                };
+                return BadRequest(responsedto);
             }
+
+            return Ok(responsedto);
         }
 
-        [HttpPost("send")]
-        public async Task<IActionResult> SendEmail([FromBody] MailContent mailContent)
+        [HttpGet("GetLsAccount")]
+        public async Task<IActionResult> GetLsAccount()
         {
-            var result = await _sendGmailService.SendMail(mailContent);
-            if (result.Contains("Error"))
+            var responsedto = await _accountService.GetLsAccountAsync();
+
+            if (responsedto == null || responsedto.IsSuccess == false)
             {
-                return BadRequest(result);
+                return BadRequest(responsedto);
             }
-            return Ok(result);
+
+            return Ok(responsedto);
         }
+
+        [HttpGet("GetAccount/{int:accid}")]
+        public async Task<IActionResult> GetAccountAsync(int accid)
+        {
+            var responsedto = await _accountService.GetAccountAsync(accid);
+
+            if (responsedto == null || responsedto.IsSuccess == false)
+            {
+                return BadRequest(responsedto);
+            }
+
+            return Ok(responsedto);
+        }
+
+        [HttpDelete("DeleteAccount/{int:accid}")]
+        public async Task<IActionResult> DeleteAccount(int accid)
+        {
+            var responsedto = await _accountService.DeleteAccountAsync(accid);
+
+            if (responsedto == null || responsedto.IsSuccess == false)
+            {
+                return BadRequest(responsedto);
+            }
+
+            return Ok(responsedto);
+        }
+
     }
 }

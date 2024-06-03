@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using unilevel.Web.Models;
-using unilevel.Web.Service.IService;
+using unilevel.Web.Service.IAPI;
 
 namespace unilevel.Web.Controllers
 {
@@ -9,19 +9,18 @@ namespace unilevel.Web.Controllers
     [ApiController]
     public class AreaController : ControllerBase
     {
-
-        private readonly IAreaService _areaService;
+        private readonly IAreaApiService _areaApi;
         private ResponseDto _responseDto;
-        public AreaController(IAreaService khuvuc)
+        public AreaController(IAreaApiService areaApi)
         {
-            _areaService = khuvuc;
+            _areaApi = areaApi;
             _responseDto = new ResponseDto();
         }
 
-        [HttpPost("AddArea")]
-        public async Task<IActionResult> AddArea([FromBody] KhuvucDto model)
+        [HttpPost("AddAreaAsync")]
+        public async Task<IActionResult> AddAreaAsync([FromBody] AreaDto model)
         {
-            _responseDto = await _areaService.AddArea(model);
+            _responseDto = await _areaApi.AddAreaAsync(model);
 
             if (_responseDto.IsSuccess == true)
             {
@@ -33,10 +32,10 @@ namespace unilevel.Web.Controllers
             }
         }
 
-        [HttpDelete("DeleteArea")]
-        public async Task<IActionResult> DeleteArea(string code)
+        [HttpDelete("DeleteAreaAsync")]
+        public async Task<IActionResult> DeleteAreaAsync(string code)
         {
-            _responseDto = await _areaService.DeleteArea(code);
+            _responseDto = await _areaApi.DeleteAreaAsync(code);
 
             if (_responseDto.IsSuccess == true)
             {
@@ -48,10 +47,10 @@ namespace unilevel.Web.Controllers
             }
         }
 
-        [HttpPut("EditArea")]
-        public async Task<IActionResult> EditArea([FromBody] KhuvucDto model)
+        [HttpPut("EditAreaAsync")]
+        public async Task<IActionResult> EditAreaAsync([FromBody] AreaDto model)
         {
-            _responseDto = await _areaService.EditArea(model);
+            _responseDto = await _areaApi.EditAreaAsync(model);
 
             if (_responseDto.IsSuccess == true)
             {
@@ -63,10 +62,10 @@ namespace unilevel.Web.Controllers
             }
         }
 
-        [HttpGet("FindArea")]
-        public async Task<IActionResult> FindArea(string input)
+        [HttpGet("FindAreaAsync")]
+        public async Task<IActionResult> FindAreaAsync(string input)
         {
-            _responseDto = await _areaService.FindArea(input);
+            _responseDto = await _areaApi.FindAreaAsync(input);
 
             if (_responseDto.IsSuccess == true)
             {
@@ -78,10 +77,10 @@ namespace unilevel.Web.Controllers
             }
         }
 
-        [HttpGet("GetArea")]
-        public async Task<IActionResult> GetArea(string code)
+        [HttpGet("GetAreaAsync")]
+        public async Task<IActionResult> GetAreaAsync(string code)
         {
-            _responseDto = await _areaService.GetArea(code);
+            _responseDto = await _areaApi.GetAreaAsync(code);
 
             if (_responseDto.IsSuccess == true)
             {
@@ -93,10 +92,10 @@ namespace unilevel.Web.Controllers
             }
         }
 
-        [HttpGet("GetAreas")]
-        public async Task<IActionResult> GetAreas()
+        [HttpGet("GetAreasAsync")]
+        public async Task<IActionResult> GetAreasAsync()
         {
-            _responseDto = await _areaService.GetAreas();
+            _responseDto = await _areaApi.GetAreasAsync();
 
             if (_responseDto.IsSuccess == true)
             {
@@ -107,6 +106,5 @@ namespace unilevel.Web.Controllers
                 return BadRequest(_responseDto.Message);
             }
         }
-
     }
 }

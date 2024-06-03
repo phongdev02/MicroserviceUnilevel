@@ -21,6 +21,7 @@ namespace unilevel.Web.Service
             bool? hasToken = _contextAccessor.HttpContext?.Request.Cookies?.TryGetValue(SD.TokenCookie, out token);
 
             return hasToken is true ? token : null;
+
         }
 
         public void clearToken()

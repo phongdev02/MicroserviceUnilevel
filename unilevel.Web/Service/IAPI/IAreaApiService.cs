@@ -1,9 +1,8 @@
-﻿using UserService.Models;
-using UserService.Models.Dto;
+﻿using unilevel.Web.Models;
 
-namespace UserService.Service.IService
+namespace unilevel.Web.Service.IAPI
 {
-    public interface IAreaService
+    public interface IAreaApiService
     {
         Task<ResponseDto> GetAreasAsync();
         Task<ResponseDto> GetAreaAsync(string areacode);

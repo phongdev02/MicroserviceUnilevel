@@ -17,17 +17,15 @@ namespace unilevel.Web.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
         private readonly ResponseDto _responDto;
         private readonly ITokenProvider _tokenProvider;
-        public AuthController(IAuthService authService, ITokenProvider tokenProvider)
+        public AuthController( ITokenProvider tokenProvider)
         {
-            _authService = authService;
             _responDto = new ResponseDto();
             _tokenProvider = tokenProvider;
         }
 
-        [HttpPost("Login")]
+        /*[HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto model)
         {
             ResponseDto? response = await _authService.LoginAsync(model);
@@ -82,6 +80,7 @@ namespace unilevel.Web.Controllers
             var jwt = handler.ReadJwtToken(model.Token);
 
             var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+
             identity.AddClaim(new Claim(JwtRegisteredClaimNames.Email,
                 jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
 
@@ -101,6 +100,6 @@ namespace unilevel.Web.Controllers
 
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principer);
-        }
+        }*/
     }
 }
